@@ -1,0 +1,161 @@
+#sketch-timeline {
+  display: contents;
+  color: #fff;
+  color-scheme: dark;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.timeline-preview {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: calc(100% - var(--timeline-height, 0px));
+  border: 0;
+  background: #000;
+  z-index: 1;
+  transition: height 220ms ease;
+}
+
+.timeline-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: fixed;
+  right: 24px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 3;
+  border: 0;
+  padding: 4px 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.timeline-chevron {
+  width: 5px;
+  height: 5px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(2px) rotate(225deg);
+  transition: transform 220ms ease;
+}
+
+.is-open .timeline-chevron {
+  transform: translateY(-2px) rotate(405deg);
+}
+
+.timeline-panel {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 2;
+  box-sizing: border-box;
+  padding: 0 0 calc(56px + env(safe-area-inset-bottom));
+  background: #000;
+  transform: translateY(100%);
+  visibility: hidden;
+  transition: transform 220ms ease, visibility 220ms;
+}
+
+.is-open .timeline-panel {
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.timeline-details { display: flex; align-items: flex-start; gap: 16px; margin: 0 24px; }
+.timeline-count, .timeline-date { flex-shrink: 0; white-space: nowrap; }
+
+.timeline-rail {
+  position: relative;
+  height: 16px;
+  margin: 0;
+  background: linear-gradient(#fff, #fff) top / 100% 1px no-repeat;
+}
+
+.timeline-dots {
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+}
+
+.timeline-dots span {
+  position: absolute;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translate(-50%, -50%);
+}
+
+.timeline-rail input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: absolute;
+  /* Le centre du curseur de 16 px s'aligne sur les points à 24 px du bord. */
+  /* Garder une zone de saisie de 32 px, centrée sur le bord du footer. */
+  inset: -16px 16px auto;
+  width: calc(100% - 32px);
+  height: 32px;
+  margin: 0;
+  background: transparent;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+
+.timeline-rail input::-webkit-slider-runnable-track { height: 1px; background: transparent; }
+.timeline-rail input::-moz-range-track { height: 1px; background: transparent; }
+
+.timeline-rail input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -7.5px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.timeline-rail input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.timeline-rail input:disabled { opacity: 1; cursor: default; }
+.timeline-toggle:focus-visible, .timeline-rail input:focus-visible, .timeline-prompt:focus-visible { outline: 1px solid #fff; outline-offset: 4px; }
+
+.timeline-prompt {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  height: 3em;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.timeline-prompt-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-preview, .timeline-panel, .timeline-chevron { transition: none; }
+}

@@ -1,0 +1,1 @@
+Modifier le sketch pour obtenir une version avec des carrés blancs et noirs alternés.

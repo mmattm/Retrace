@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": ["vite/client", "p5/global"]
+  },
+  "include": [
+    "*.js",
+    "**/*.js"
+  ],
+  "exclude": ["node_modules", "dist", "timeline/versions"]
+}
