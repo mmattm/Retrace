@@ -76,6 +76,26 @@ body:has(#sketch-timeline.is-poster-mode) { background: #dcdcdc; }
 
 .timeline-backdrop[hidden] { display: none; }
 
+.timeline-selection {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  line-height: 1;
+  overflow-wrap: anywhere;
+  mix-blend-mode: difference;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.timeline-selection-title { font-size: clamp(32px, 8vw, 96px); }
+.timeline-selection-count { font-size: clamp(20px, 3.5vw, 42px); }
+
 .timeline-footer {
   display: flex;
   align-items: center;

@@ -24,6 +24,9 @@ const slider = ui.querySelector('input');
 const dots = ui.querySelector('.timeline-dots');
 const date = ui.querySelector('.timeline-date');
 const count = ui.querySelector('.timeline-count');
+const selection = ui.querySelector('.timeline-selection');
+const selectionTitle = selection.querySelector('.timeline-selection-title');
+const selectionCount = selection.querySelector('.timeline-selection-count');
 const engineLabel = ui.querySelector('.timeline-engine');
 const prompt = ui.querySelector('.timeline-prompt');
 const promptText = prompt.querySelector('.timeline-prompt-text');
@@ -88,6 +91,7 @@ let controlsAvailable = false;
 let posterMode = new URLSearchParams(location.search).get('poster');
 if (!['portrait', 'landscape'].includes(posterMode)) posterMode = 'off';
 let copyFeedbackTimer;
+let selectionAnimation;
 const sketchTools = createSketchTools(preview, () => project?.id ?? 'sketch');
 const canDeleteHistory = import.meta.env.DEV && ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
 
@@ -160,6 +164,8 @@ sortedProjects.forEach((item) => {
 
 function showProject(nextProject, versionId = null) {
   clearTimeout(copyFeedbackTimer);
+  const previousProject = project;
+  const previousVersion = versions[selected];
   project = nextProject;
   versions = project.versions;
   selected = -1;
@@ -207,6 +213,19 @@ function showProject(nextProject, versionId = null) {
     date.removeAttribute('datetime');
     promptText.textContent = 'The first sketch update will appear here.';
   }
+  if (previousProject && (project !== previousProject || versions[selected] !== previousVersion)) {
+    showSelection();
+  }
+}
+
+function showSelection() {
+  selectionTitle.textContent = project.title;
+  selectionCount.textContent = count.textContent;
+  selectionAnimation?.cancel();
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  selectionAnimation = selection.animate([{ opacity: 1 }, { opacity: 0 }], {
+    delay: 500, duration: reducedMotion ? 0 : 280, easing: 'ease-out', fill: 'backwards',
+  });
 }
 
 function updateURL(version = null) {
@@ -263,6 +282,7 @@ function showVersion(index, { restart = false } = {}) {
         ${scripts}
         </head><body data-engine="${engine}" data-sketch="${sketchURL}" data-poster-mode="${posterMode}" class="${controlsOpen ? '' : 'controls-hidden'}"><div id="sketch-workspace"><main id="sketch-stage"></main></div>
         <script type="module" src="${url(frameUrl)}"></script></body></html>`;
+    if (!restart && selected >= 0) showSelection();
   }
   selected = index;
 }
