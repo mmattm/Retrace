@@ -31,6 +31,12 @@ In **Versions**, click the version summary to copy its reference. Paste it into 
 
 > Make the lines thicker and fade twice as slowly.
 
+**Sidebar controls**
+
+Use **Add Controls** in your prompt and name the settings you want in the right sidebar.
+
+> Add Controls for stroke width and fade speed.
+
 ## Engines
 
 Choose an engine in your prompt or ask your assistant to help you pick one.
@@ -41,7 +47,11 @@ Choose an engine in your prompt or ask your assistant to help you pick one.
 
 ## Optional sketch Agent
 
-The **Agent** lets you change the running sketch with text. Ask for Agent mode explicitly in each new version that should include it.
+The **Agent** lets you change the running sketch with text. Ask for Agent mode in each new version that should include it, and list the parameters it should control.
+
+> Add Agent mode to control the existing stroke width and fade speed settings.
+
+A general request uses the sketch’s existing tunable settings. To let the Agent control a new parameter, explicitly ask to make it configurable.
 
 Install and run [Ollama](https://ollama.com/download), then download the model.
 
