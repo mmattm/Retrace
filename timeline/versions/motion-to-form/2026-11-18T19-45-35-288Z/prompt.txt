@@ -1,0 +1,3 @@
+Create a second project inspired by Golan Levin’s Yellowtail: https://www.flong.com/archive/projects/yellowtail/index.html.
+
+The idea is to create a drawing tool that repeats an animation. Keep the project simple.

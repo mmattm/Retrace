@@ -1,0 +1,5 @@
+Project: motion-to-form
+Starting version: 2026-11-19T14-00-27-997Z
+Starting sketch: timeline/versions/motion-to-form/2026-11-19T14-00-27-997Z/sketch.js
+
+Add Paper.js as an optional engine while keeping p5.js as the default. Create a Paper.js iteration of Motion to form, retaining Agent-only drawing, the existing drawing commands and prompt examples. Keep the shared timeline, playback, responsive controls and exports.

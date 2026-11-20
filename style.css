@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "MonoLisa";
-  src: url("/assets/fonts/MonoLisa-Regular.ttf") format("truetype");
+  font-family: "Unica77LL";
+  src: url("/assets/fonts/Unica77LL-Regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -8,22 +8,286 @@
 
 html, body {
   margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
   background: #000;
-  font-family: "MonoLisa", ui-monospace, monospace;
+  font-family: "Unica77LL", Arial, sans-serif;
 }
+
+input, textarea, [contenteditable]:not([contenteditable="false"]) {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+  caret-color: currentColor;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+::selection { background: transparent; color: inherit; }
+input::selection, textarea::selection, [contenteditable]:not([contenteditable="false"])::selection {
+  background: rgb(128 128 128 / 30%);
+  color: inherit;
+}
+
+button, a { touch-action: manipulation; }
 
 body {
-  min-height: 100vh;
-  min-height: 100svh;
   display: grid;
-  place-items: center;
+  grid-template: "canvas" minmax(0, 1fr) / minmax(0, 1fr);
 }
 
-/* Le canvas conserve ses 640 × 640 unités internes.
-   Seule sa taille affichée diminue pour tenir dans la fenêtre. */
+#sketch-workspace {
+  grid-area: canvas;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  container-type: size;
+  overflow: hidden;
+}
+
+#sketch-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+/* The sheet fits the workspace left by the footer and sidebar, including its padding. */
+body[data-poster-mode="portrait"] { --poster-ratio: 0.7071067812; }
+body[data-poster-mode="landscape"] { --poster-ratio: 1.4142135624; }
+body[data-poster-mode]:not([data-poster-mode="off"]) #sketch-workspace {
+  box-sizing: border-box;
+  padding: clamp(64px, 14vmin, 96px) clamp(20px, 4vmin, 64px);
+  background: #dcdcdc;
+}
+body[data-poster-mode]:not([data-poster-mode="off"]) #sketch-stage {
+  width: min(100cqw, calc(100cqh * var(--poster-ratio)));
+  height: min(100cqh, calc(100cqw / var(--poster-ratio)));
+}
+
+/* This guide is HTML above the canvas, so it never enters the recorded pixels. */
+.recording-region {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  border: 1px solid #fff;
+  box-shadow: 0 0 0 1px #000, inset 0 0 0 1px #000, 0 0 0 9999px rgb(0 0 0 / 60%);
+  pointer-events: none;
+}
+.recording-region[hidden], body.interface-hidden .recording-region { display: none; }
+
+/* The shared frame module matches p5's drawing dimensions to this area. */
 canvas {
   display: block;
-  width: min(640px, 100vw, 100vh) !important;
-  width: min(640px, 100vw, 100svh) !important;
-  height: auto !important;
+  box-sizing: border-box;
+  width: 100% !important;
+  height: 100% !important;
+  border-bottom: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+#sketch-stage canvas {
+  /* Override the inline cursor used by archived drawing sketches. */
+  cursor: url("/assets/img/hand-cursor.png") 8 3, crosshair !important;
+}
+
+/* Reserve a sidebar only for sketches that actually provide controls. */
+body.has-controls:not(.controls-hidden):not(.interface-hidden) {
+  grid-template: "canvas sidebar" minmax(0, 1fr) / minmax(0, 1fr) clamp(180px, var(--sidebar-width, clamp(220px, 22vw, 300px)), 60vw);
+}
+
+#sketch-controls {
+  --controls-foreground: #fff;
+  --tp-base-font-family: "Unica77LL", Arial, sans-serif !important;
+  --tp-container-unit-size: 44px !important;
+  --tp-container-unit-spacing: 8px !important;
+  --tp-container-vertical-padding: 8px !important;
+  grid-area: sidebar;
+  position: relative !important;
+  inset: auto !important;
+  box-sizing: border-box;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 60px 16px 16px;
+  border: 0;
+  border-left: 1px solid #fff;
+  background: #000;
+}
+
+/* Keep groups and their interactive states flat, using the sidebar's own background. */
+#sketch-controls .tp-rotv {
+  --tp-base-background-color: transparent;
+  --tp-base-shadow-color: transparent;
+  --tp-base-border-radius: 0;
+  --tp-blade-border-radius: 0;
+  --tp-container-background-color: transparent;
+  --tp-container-background-color-hover: transparent;
+  --tp-container-background-color-focus: transparent;
+  --tp-container-background-color-active: transparent;
+  --tp-container-foreground-color: var(--controls-foreground);
+  --tp-input-background-color: transparent;
+  --tp-input-background-color-hover: transparent;
+  --tp-input-background-color-focus: transparent;
+  --tp-input-background-color-active: transparent;
+  --tp-input-foreground-color: var(--controls-foreground);
+  --tp-label-foreground-color: var(--controls-foreground);
+  --tp-button-background-color: transparent;
+  --tp-button-background-color-hover: transparent;
+  --tp-button-background-color-focus: transparent;
+  --tp-button-background-color-active: transparent;
+  --tp-button-foreground-color: var(--controls-foreground);
+  --tp-monitor-background-color: transparent;
+  --tp-monitor-foreground-color: var(--controls-foreground);
+  font-size: 16px !important;
+  border: 0 !important;
+  box-shadow: none;
+}
+#sketch-controls .tp-lblv { flex-direction: column; align-items: stretch; gap: 4px; }
+#sketch-controls .tp-lblv_l { flex: none; padding: 0; font-size: 12px; line-height: 16px; }
+#sketch-controls .tp-lblv_v { width: 100%; align-self: stretch; }
+#sketch-controls .tp-sldv_t { margin-inline: 12px; touch-action: none; }
+#sketch-controls .tp-sldv_t::before {
+  background-color: var(--controls-foreground);
+  opacity: 0.5;
+}
+#sketch-controls .tp-sldv_k::before,
+#sketch-controls .tp-sldv_k::after { background-color: var(--controls-foreground); }
+#sketch-controls .tp-sldv_k::after {
+  width: 16px;
+  height: 16px;
+  right: -8px;
+  border-radius: 50%;
+}
+#sketch-controls .tp-sldv_t:focus-visible { outline: 1px solid var(--controls-foreground); }
+
+#sketch-controls .tp-txtv_i {
+  box-sizing: border-box;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  color: var(--controls-foreground);
+}
+
+#sketch-controls .has-text-clear .tp-txtv_i { padding-right: 44px; }
+#sketch-controls .text-field-clear {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--controls-foreground);
+  font: inherit;
+  font-size: 18px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+#sketch-controls .text-field-clear:hover, #sketch-controls .text-field-clear:focus-visible { opacity: 1; }
+#sketch-controls .text-field-clear:focus-visible { outline: 1px solid currentColor; outline-offset: -4px; }
+#sketch-controls .text-field-clear:disabled { opacity: 0.25; cursor: default; }
+
+#sketch-controls :is(input, textarea, select) { font-size: 16px !important; }
+
+/* Include legacy helpers whose archived UI sets an inline text color. */
+#sketch-controls > p, #sketch-controls .sketch-helper {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--controls-foreground) !important;
+}
+
+/* The same transparent controls adapt to the gray Poster Mode sidebar. */
+body[data-poster-mode]:not([data-poster-mode="off"]) #sketch-controls {
+  --controls-foreground: #111;
+  background: #dcdcdc;
+  color: #111;
+  color-scheme: light;
+  border-color: #aaa;
+}
+body[data-poster-mode]:not([data-poster-mode="off"]) .sidebar-resizer:focus-visible { outline-color: #111; }
+
+body:not(.has-controls) #sketch-controls,
+body.controls-hidden #sketch-controls,
+body.interface-hidden #sketch-controls { display: none; }
+
+body.agent-overlay-active :is(#sketch-controls, .sidebar-resizer, .recording-region) {
+  opacity: 0.25;
+  filter: grayscale(1);
+  pointer-events: none;
+  user-select: none;
+}
+
+.sidebar-resizer {
+  display: none;
+  grid-area: sidebar;
+  justify-self: start;
+  z-index: 2;
+  width: 12px;
+  margin-left: -6px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+body.has-controls:not(.controls-hidden):not(.interface-hidden) .sidebar-resizer { display: block; }
+.sidebar-resizer:focus-visible { outline: 1px solid #fff; outline-offset: -3px; }
+body.footer-open .sidebar-resizer { outline: none; }
+body.is-resizing-sidebar, body.is-resizing-sidebar * {
+  cursor: var(--resize-cursor) !important;
+  user-select: none !important;
+}
+
+@media (max-width: 700px) {
+  body.has-controls:not(.controls-hidden):not(.interface-hidden) {
+    grid-template: "canvas" minmax(0, 1fr) "sidebar" auto / minmax(0, 1fr);
+  }
+
+  #sketch-controls {
+    height: var(--sidebar-height, auto);
+    max-height: min(var(--sidebar-height, 35svh), 60svh);
+    padding: 60px 12px 12px;
+  }
+
+  .sidebar-resizer {
+    justify-self: stretch;
+    align-self: start;
+    width: auto;
+    height: 12px;
+    margin-left: 0;
+    margin-top: -6px;
+    cursor: row-resize;
+  }
+}
+
+@media (any-pointer: coarse) {
+  #sketch-controls .tp-rotv { font-size: 17px !important; }
+  #sketch-controls :is(input, textarea, select) { font-size: 17px !important; }
+  #sketch-controls .tp-lblv_l { font-size: 13px; line-height: 18px; }
+  #sketch-controls > p, #sketch-controls .sketch-helper { font-size: 13px !important; line-height: 18px !important; }
+  .sidebar-resizer { width: 20px; margin-left: -10px; }
+}
+
+@media (max-width: 700px) and (any-pointer: coarse) {
+  .sidebar-resizer { width: auto; height: 20px; margin-left: 0; margin-top: -10px; }
 }

@@ -1,0 +1,7 @@
+Project: motion-to-form
+Starting version: 2026-11-19T15-16-03-210Z
+Starting sketch: timeline/versions/motion-to-form/2026-11-19T15-16-03-210Z/sketch.js
+
+Animate the vector drawings subtly to add movement while keeping the Paper.js engine.
+
+Keep Agent support enabled in the new iteration.

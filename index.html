@@ -1,26 +1,172 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Carrés — sin et cos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="A creative coding workspace for drawing, typography and generative sketches.">
+    <meta name="theme-color" content="#000000">
+    <meta name="application-name" content="Retrace">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Retrace">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <title>Retrace</title>
   </head>
   <body>
     <div id="sketch-timeline">
-      <iframe class="timeline-preview" title="Version du sketch" hidden></iframe>
-      <section class="timeline-panel" id="timeline-panel" aria-label="Historique du sketch" aria-hidden="true" inert>
+      <iframe id="sketch-preview" class="timeline-preview" title="Sketch version" hidden></iframe>
+      <div class="timeline-backdrop" aria-hidden="true" hidden></div>
+      <div class="sketch-toolbar" aria-label="Sketch actions">
+        <button class="retrace-logo" type="button" title="Copy the mobile link" aria-live="polite">Retrace</button>
+        <button class="playback-toggle" type="button" aria-pressed="false" aria-controls="sketch-preview" aria-keyshortcuts="Space" title="Pause sketch (Space)" disabled>
+          <span class="playback-icon" aria-hidden="true"></span>
+          <span class="playback-status">
+            <span class="playback-label">Pause</span>
+            <span class="playback-fps" title="Frames per second" hidden></span>
+          </span>
+        </button>
+        <button class="export-toggle" type="button" aria-haspopup="dialog" aria-controls="export-dialog" aria-keyshortcuts="E" aria-live="polite" aria-atomic="true" title="Export canvas (e)" disabled>
+          <span class="export-label">Export</span>
+          <span class="shortcut-hint" aria-hidden="true">(e)</span>
+        </button>
+        <button class="poster-toggle" type="button" aria-pressed="false" aria-controls="sketch-preview" aria-keyshortcuts="P" title="Switch to Portrait Poster Mode (p)" disabled>
+          <span class="poster-label">Fullscreen Mode</span>
+          <span class="shortcut-hint" aria-hidden="true">(p)</span>
+        </button>
+      </div>
+      <button class="agent-toggle agent-connection" id="agent-connection" type="button" aria-expanded="false" aria-haspopup="dialog" aria-controls="text-dialog" aria-keyshortcuts="T" title="Agent prompt (t)" data-state="checking" hidden disabled>
+        <span>Agent</span>
+        <span class="agent-state"><span class="agent-connection-dot" aria-hidden="true"></span><span id="agent-connection-label" role="status">Checking…</span></span>
+        <span class="shortcut-hint" aria-hidden="true">(t)</span>
+      </button>
+      <button class="controls-toggle" type="button" aria-expanded="false" aria-controls="sketch-preview" aria-keyshortcuts="C" title="Show controls (c)" hidden>
+        <span class="timeline-chevron" aria-hidden="true"></span>
+        <span class="controls-label">Controls</span>
+        <span class="shortcut-hint" aria-hidden="true">(c)</span>
+      </button>
+      <nav class="projects-panel" id="projects-panel" aria-label="Projects" aria-hidden="true" inert>
+        <div class="projects-grid"></div>
+      </nav>
+      <section class="timeline-panel" id="timeline-panel" aria-label="Sketch history" aria-hidden="true" inert>
         <div class="timeline-rail">
           <div class="timeline-dots" aria-hidden="true"></div>
-          <input type="range" min="0" step="1" aria-label="Version du sketch">
+          <input type="range" min="0" step="1" aria-label="Sketch version">
         </div>
         <div class="timeline-details" aria-live="polite">
-          <button class="timeline-prompt" type="button" title="Copier une consigne pour partir de cette version"><span class="timeline-prompt-text"></span></button><time class="timeline-date"></time>
+          <button class="timeline-prompt" type="button" title="Copy the version summary and reference"><span class="timeline-prompt-text"></span></button>
+          <div class="timeline-version-meta">
+            <time class="timeline-date"></time>
+            <button class="timeline-delete history-delete" type="button" aria-label="Delete selected iteration" hidden>Delete</button>
+          </div>
         </div>
       </section>
-      <button class="timeline-toggle" type="button" aria-expanded="false" aria-controls="timeline-panel" title="Afficher ou masquer l’historique">
-        <span class="timeline-chevron" aria-hidden="true"></span>
-        <span class="timeline-count" aria-label="Version 0 sur 0">0/0</span>
-      </button>
+      <footer class="timeline-footer">
+        <button class="projects-toggle" type="button" aria-expanded="false" aria-controls="projects-panel" aria-keyshortcuts="Tab" title="Choose a project (Tab)">
+          <span class="timeline-chevron" aria-hidden="true"></span>
+          <span class="projects-title"></span>
+          <span class="shortcut-hint" aria-hidden="true">(Tab)</span>
+        </button>
+        <button class="timeline-reset" type="button" aria-controls="sketch-preview" aria-keyshortcuts="R" title="Reset sketch (r)" disabled>
+          <span>Reset</span>
+          <span class="shortcut-hint" aria-hidden="true">(r)</span>
+        </button>
+        <div class="timeline-navigation">
+          <button class="timeline-toggle" type="button" aria-expanded="false" aria-controls="timeline-panel" aria-keyshortcuts="V Shift+ArrowLeft Shift+ArrowRight" title="Show or hide versions (v). Press Shift+← or Shift+→ to change iteration.">
+            <span class="timeline-chevron" aria-hidden="true"></span>
+            <span class="timeline-count" aria-label="Version 0 of 0">0/0</span>
+            <span class="timeline-engine" title="Sketch engine" hidden></span>
+            <span class="shortcut-hint" aria-hidden="true">(v)</span>
+          </button>
+          <button class="timeline-latest" type="button" title="Jump to latest iteration" aria-label="Jump to latest iteration" hidden>&gt;&gt;</button>
+        </div>
+      </footer>
+      <dialog id="text-dialog" aria-label="Agent prompt">
+        <div class="text-actions">
+          <button id="text-submit" type="submit" form="text-form" disabled>Send</button>
+          <button id="text-close" type="button" aria-label="Close Agent" title="Close Agent (Esc)">×</button>
+        </div>
+        <form id="text-form">
+          <div class="text-editor">
+            <textarea id="text-prompt" aria-label="Prompt the sketch Agent" aria-describedby="text-status" placeholder="Describe a change…" rows="1" enterkeyhint="send" spellcheck="false" autofocus></textarea>
+            <span id="text-example" aria-hidden="true"></span>
+          </div>
+          <p id="text-status" role="status"><span id="text-last-command" hidden></span><span id="text-helper">Enter to send · Shift+Enter for a new line · Esc to close</span><button id="text-next-example" type="button" hidden>Another example (Shift)</button></p>
+        </form>
+      </dialog>
+      <dialog id="export-dialog" aria-label="Export canvas">
+        <form id="export-form">
+          <div class="export-header">
+            <div class="export-tabs" role="tablist" aria-label="Export type">
+              <button id="export-image-tab" type="button" role="tab" aria-selected="true" aria-controls="export-settings" data-export-mode="image">Image</button>
+              <button id="export-video-tab" type="button" role="tab" aria-selected="false" aria-controls="export-settings" tabindex="-1" data-export-mode="video">Video</button>
+            </div>
+            <button class="export-dismiss" type="button" aria-label="Close export" data-close>×</button>
+          </div>
+          <div id="export-settings" role="tabpanel" aria-labelledby="export-image-tab">
+            <div class="export-preview-area">
+              <canvas class="export-preview" aria-label="Full canvas preview"></canvas>
+              <div class="export-crop" tabindex="0" role="group" aria-label="Export crop" aria-describedby="export-note"></div>
+            </div>
+            <div class="export-framing">
+              <p class="export-note" id="export-note">The white frame marks the export area. Drag it or use arrow keys to reposition.</p>
+              <button class="export-center" type="button" title="Center crop">Center</button>
+            </div>
+            <div class="export-fields">
+              <label><span class="export-format-label">Aspect ratio</span>
+                <span class="export-select"><select name="ratio">
+                  <option value="custom">Custom</option>
+                  <option value="9:16">9:16 — Portrait</option>
+                  <option value="16:9">16:9 — Landscape</option>
+                  <option value="4:3">4:3</option>
+                  <option value="3:4">3:4</option>
+                  <option value="4:5">4:5 — Portrait</option>
+                  <option value="5:4">5:4 — Landscape</option>
+                  <option value="poster-portrait">Poster — Portrait (1:√2)</option>
+                  <option value="poster-landscape">Poster — Landscape (√2:1)</option>
+                </select></span>
+              </label>
+              <label class="export-image-format" hidden>File type
+                <span class="export-select"><select name="image-format" disabled>
+                  <option value="png">PNG</option>
+                  <option value="svg">SVG</option>
+                </select></span>
+              </label>
+              <label class="export-video-resolution" hidden>Resolution
+                <span class="export-select"><select name="video-resolution" disabled>
+                  <option value="720p">720p</option>
+                  <option value="1080p" selected>1080p</option>
+                  <option value="2k">2K (DCI)</option>
+                  <option value="qhd">QHD</option>
+                  <option value="4k">4K (UHD)</option>
+                </select></span>
+              </label>
+              <label>Width (px)<input name="width" type="number" min="1" max="8192" step="1" required></label>
+              <label>Height (px)<input name="height" type="number" min="1" max="8192" step="1" required></label>
+              <label>Scale
+                <span class="export-select"><select name="scale">
+                  <option value="1">×1</option>
+                  <option value="2">×2</option>
+                  <option value="3">×3</option>
+                  <option value="4">×4</option>
+                  <option value="5">×5</option>
+                </select></span>
+              </label>
+            </div>
+            <p class="export-note export-size" aria-live="polite"></p>
+            <p class="export-note export-video-note" hidden></p>
+            <p class="export-status" role="status"></p>
+            <div class="export-actions">
+              <button type="button" data-close>Cancel</button>
+              <button class="export-show-ui" type="button" title="Record the browser tab, including controls and Agent prompts" hidden>Record window</button>
+              <button type="submit">Download PNG</button>
+            </div>
+          </div>
+        </form>
+      </dialog>
     </div>
     <script type="module" src="/main.js"></script>
   </body>

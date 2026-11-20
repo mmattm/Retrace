@@ -1,0 +1,8 @@
+Project: motion-to-form
+Starting version: 2026-11-18T19-48-00-688Z
+Starting sketch: timeline/versions/motion-to-form/2026-11-18T19-48-00-688Z/sketch.js
+
+Starting version summary:
+Vary stroke thickness in the looping gesture drawing tool.
+
+Create a new iteration with Agent mode enabled. Instead of changing parameters, allow the Agent to draw random shapes from a prompt, for example by drawing from random starting positions.

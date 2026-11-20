@@ -1,0 +1,132 @@
+{
+  "mode": "drawing",
+  "description": "A Yellowtail-inspired Paper.js tool animates editable white vector paths on a black canvas. You DRAW by returning paths, not by editing configuration parameters. Draw through the Agent only; mouse, pen and touch do not create strokes. Coordinates are local normalized vertices; the sketch expands each recipe into real animated strokes at random, centered or grid positions. It can approximate simple shapes and freeform outlines. The background and stroke colors stay black and white. A visible traveling wave bends the actual points of every path while playback runs; this is line deformation rather than rigid rocking or scaling. Open paths keep their endpoints fixed, and closed outlines ripple continuously. Base drawings remain near their original positions; larger directional movement and Yellowtail replay remain available when explicitly requested. Each shape instance has its own draw / hold / erase cycle, wave speed, phase and start delay, chosen once at creation. Drawing cycles last roughly 4.5–8 seconds and waves roughly 3–5 seconds, so copies keep different rhythms over time. These animations remain active independently of directional speed.",
+  "systemPrompt": "Interpret drawing requests in any language. Return a drawing command matching the schema, never code or parameter updates. Design each requested outline as a compact list of vertices in a local 0–1 unit square. A triangle needs three vertices, a square four, and a circle about 12 evenly spaced perimeter vertices. closed=true adds the closing segment; do not repeat the first vertex. Use multiple path designs for different shapes. For random shapes, choose 2–4 different simple outlines; for random positions, use placement=random and let the sketch randomize every copy. Default operation=add, size=0.2, thickness=4, speed=0, and one copy of a specifically named shape; for unspecified quantities such as a few random shapes use a modest total of 6–12. Default motion=still and speed=0: the sketch automatically bends the line geometry with a traveling wave, even when speed=0. Every path also draws itself progressively, holds, erases and repeats automatically; each instance has its own independent draw duration, wave speed, phase and start delay. The sketch assigns these timings automatically; do not add timing fields to the drawing JSON. For requests for drawing sequences, progressive line drawing, waving, rippling or animated lines, use this default; never invent a new motion value. Use follow, directional or random drift with speed=1 only when the user requests that larger movement. motion=still stops travel or replay but keeps both the traveling line wave and the progressive drawing loop; the shared Pause button freezes everything. Requests to clear use operation=clear and strokes=[]. Replace only when asked to replace or start over; otherwise preserve existing drawings. Keep the resulting scene within 128 strokes, using remainingStrokes for add and 128 for replace. No more than 64 copies per path design or six designs per response. Use lastDrawing as a reference for requests for more of the same. Unsupported requests return operation=add and strokes=[]. Return JSON only.",
+  "responseSchema": {
+    "type": "object",
+    "properties": {
+      "operation": {
+        "type": "string",
+        "enum": [
+          "add",
+          "replace",
+          "clear"
+        ],
+        "description": "Add strokes by default; replace only when requested; clear uses an empty strokes array."
+      },
+      "strokes": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "points": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Horizontal coordinate within the local unit square."
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Vertical coordinate within the local unit square."
+                  }
+                },
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 2,
+              "maxItems": 24,
+              "description": "Polyline vertices within a local 0–1 unit square. Design the requested shape; do not repeat coordinates to make copies."
+            },
+            "copies": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64,
+              "description": "Number of copies of this path. Runtime supplies independent random positions when requested. Each copy has its own animation timing, even when copies share the same outline or grid."
+            },
+            "placement": {
+              "type": "string",
+              "enum": [
+                "random",
+                "center",
+                "grid"
+              ],
+              "description": "Where to create copies. Grid fits copies to their cells; center shares the canvas center."
+            },
+            "size": {
+              "type": "number",
+              "minimum": 0.03,
+              "maximum": 0.8,
+              "description": "Size of the local unit square relative to the shorter canvas dimension. Default 0.2."
+            },
+            "closed": {
+              "type": "boolean",
+              "description": "Close the outline for polygons or circles; keep false for open gestures."
+            },
+            "thickness": {
+              "type": "number",
+              "minimum": 2,
+              "maximum": 14,
+              "description": "Line width in logical pixels. Default 4."
+            },
+            "motion": {
+              "type": "string",
+              "enum": [
+                "follow",
+                "random",
+                "left",
+                "right",
+                "up",
+                "down",
+                "still"
+              ],
+              "description": "still keeps the base shape in place while a traveling wave bends its line geometry and a draw / hold / erase loop reveals the line. follow replays an open path end-over-end; random, left, right, up and down drift the whole shape. Default still; larger travel only when requested."
+            },
+            "speed": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 4,
+              "description": "Drift speed in pixels per 60 fps frame, or replay multiplier for follow. Default 0; use 1 for explicitly requested travel or replay. The automatic traveling line wave remains active at speed=0. The progressive drawing loop is also independent of this value."
+            }
+          },
+          "required": [
+            "points",
+            "copies",
+            "placement",
+            "size",
+            "closed",
+            "thickness",
+            "motion",
+            "speed"
+          ],
+          "additionalProperties": false
+        },
+        "minItems": 0,
+        "maxItems": 6,
+        "description": "Up to six path designs. Each design can create many copies without repeating its vertices."
+      }
+    },
+    "required": [
+      "operation",
+      "strokes"
+    ],
+    "additionalProperties": false
+  },
+  "examples": [
+    "Draw six circles, each drawing itself at its own pace.",
+    "Replace the drawing with three independently rippling triangles.",
+    "Draw sixteen squares in a 4 by 4 grid with different drawing rhythms.",
+    "Draw five looping zigzag strokes from random positions.",
+    "Draw a few different shapes drifting slowly in random directions.",
+    "Clear the drawing."
+  ]
+}

@@ -1,0 +1,186 @@
+[
+  {
+    "id": "carres",
+    "title": "Squares — sin and cos",
+    "versions": [
+      {
+        "id": "2026-10-23_10-00-37-439818",
+        "createdAt": "2026-10-23T10:00:37.439+02:00",
+        "restoredAt": "2026-10-23T10:45:18.989+02:00",
+        "prompt": "Carrés répétés et imbriqués en contours blancs sur fond noir, animés par des oscillations et de légères déformations.",
+        "sketch": "timeline/versions/carres/2026-10-23_10-00-37-439818/sketch.js",
+        "summary": "Animate nested white square outlines with oscillation and subtle deformation on a black background."
+      },
+      {
+        "id": "2026-10-23_10-31-29-552872",
+        "createdAt": "2026-10-23T10:31:29.552+02:00",
+        "prompt": "Modifier le sketch pour obtenir une version avec des carrés blancs et noirs alternés.",
+        "sketch": "timeline/versions/carres/2026-10-23_10-31-29-552872/sketch.js",
+        "summary": "Alternate black and white fills across the nested squares."
+      },
+      {
+        "id": "2026-10-23_11-47-07-725313",
+        "createdAt": "2026-10-23T11:47:07.725+02:00",
+        "prompt": "Créer une nouvelle version du sketch avec des mouvements plus organiques.",
+        "sketch": "timeline/versions/carres/2026-10-23_11-47-07-725313/sketch.js",
+        "summary": "Give the nested squares more organic movement."
+      },
+      {
+        "id": "2026-10-26T10-16-16-604Z",
+        "createdAt": "2026-10-26T10:16:16.604Z",
+        "prompt": "Créer une nouvelle version du sketch dans la timeline avec une mini-interface Tweakpane contenant uniquement un slider pour choisir le nombre de carrés.",
+        "sketch": "timeline/versions/carres/2026-10-26T10-16-16-604Z/sketch.js",
+        "summary": "Adjust the number of nested squares with a single Tweakpane slider."
+      },
+      {
+        "id": "2026-11-19T10-57-23-587Z",
+        "createdAt": "2026-11-19T10:57:23.587Z",
+        "prompt": "Project: carres\nStarting version: 2026-11-19T08-44-39-661Z\nStarting sketch: timeline/versions/carres/2026-11-19T08-44-39-661Z/sketch.js\n\nStarting version summary:\nControl the number of squares through the Agent or a single Tweakpane slider.\n\nCreate a new agent-enabled version with broader control over the sketch.\n",
+        "summary": "Give the Agent control over all square settings: count, sizes, drift, noise, rotation, deformation and speed.",
+        "sketch": "timeline/versions/carres/2026-11-19T10-57-23-587Z/sketch.js"
+      },
+      {
+        "id": "2026-11-19T12-17-54-197Z",
+        "createdAt": "2026-11-19T12:17:54.197Z",
+        "prompt": "Project: carres\nStarting version: 2026-11-19T10-57-23-587Z\nStarting sketch: timeline/versions/carres/2026-11-19T10-57-23-587Z/sketch.js\n\nCreate a new agent-enabled version with more creative freedom to extend the sketch's configurable settings, including colors and duplication of multiple instances.\n",
+        "summary": "Let the Agent arrange and recolor repeated square motifs, with outlines, transparency, rounded corners and motion.",
+        "sketch": "timeline/versions/carres/2026-11-19T12-17-54-197Z/sketch.js"
+      }
+    ]
+  },
+  {
+    "id": "motion-to-form",
+    "title": "Motion to form",
+    "versions": [
+      {
+        "id": "2026-11-18T19-45-35-288Z",
+        "createdAt": "2026-11-18T19:45:35.288Z",
+        "prompt": "Create a second project inspired by Golan Levin’s Yellowtail: https://www.flong.com/archive/projects/yellowtail/index.html.\n\nThe idea is to create a drawing tool that repeats an animation. Keep the project simple.\n",
+        "sketch": "timeline/versions/motion-to-form/2026-11-18T19-45-35-288Z/sketch.js",
+        "summary": "Draw gestures that repeat as looping animations, inspired by Golan Levin’s Yellowtail."
+      },
+      {
+        "id": "2026-11-18T19-48-00-688Z",
+        "createdAt": "2026-11-18T19:48:00.688Z",
+        "prompt": "Create a new version of the Motion to form project with varying stroke thickness.\n",
+        "sketch": "timeline/versions/motion-to-form/2026-11-18T19-48-00-688Z/sketch.js",
+        "summary": "Vary stroke thickness in the looping gesture drawing tool."
+      },
+      {
+        "id": "2026-11-19T12-39-34-635Z",
+        "createdAt": "2026-11-19T12:39:34.635Z",
+        "prompt": "Project: motion-to-form\nStarting version: 2026-11-18T19-48-00-688Z\nStarting sketch: timeline/versions/motion-to-form/2026-11-18T19-48-00-688Z/sketch.js\n\nStarting version summary:\nVary stroke thickness in the looping gesture drawing tool.\n\nCreate a new iteration with Agent mode enabled. Instead of changing parameters, allow the Agent to draw random shapes from a prompt, for example by drawing from random starting positions.\n",
+        "summary": "Ask the Agent to draw and animate paths from prompts, with random placement and repeated copies.",
+        "sketch": "timeline/versions/motion-to-form/2026-11-19T12-39-34-635Z/sketch.js"
+      },
+      {
+        "id": "2026-11-19T15-16-03-210Z",
+        "createdAt": "2026-11-19T15:16:03.210Z",
+        "prompt": "Project: motion-to-form\nStarting version: 2026-11-19T14-00-27-997Z\nStarting sketch: timeline/versions/motion-to-form/2026-11-19T14-00-27-997Z/sketch.js\n\nAdd Paper.js as an optional engine while keeping p5.js as the default. Create a Paper.js iteration of Motion to form, retaining Agent-only drawing, the existing drawing commands and prompt examples. Keep the shared timeline, playback, responsive controls and exports.\n",
+        "summary": "Draw and animate Agent-generated vector paths with Paper.js, with PNG and SVG export.",
+        "sketch": "timeline/versions/motion-to-form/2026-11-19T15-16-03-210Z/sketch.js",
+        "engine": "paper"
+      },
+      {
+        "id": "2026-11-19T16-06-23-853Z",
+        "createdAt": "2026-11-19T16:06:23.853Z",
+        "prompt": "Project: motion-to-form\nStarting version: 2026-11-19T15-16-03-210Z\nStarting sketch: timeline/versions/motion-to-form/2026-11-19T15-16-03-210Z/sketch.js\n\nAnimate the vector drawings subtly to add movement while keeping the Paper.js engine.\n\nKeep Agent support enabled in the new iteration.\n",
+        "summary": "Animate each Paper.js shape independently with its own drawing cycle, wave speed and start delay.",
+        "sketch": "timeline/versions/motion-to-form/2026-11-19T16-06-23-853Z/sketch.js",
+        "engine": "paper"
+      }
+    ]
+  },
+  {
+    "id": "invisible-sphere",
+    "title": "Invisible sphere",
+    "versions": [
+      {
+        "id": "2026-11-19T15-41-36-420Z",
+        "createdAt": "2026-11-19T15:41:36.420Z",
+        "prompt": "Project: invisible-sphere\nStarting version: 2026-11-19T15-38-51-324Z\nStarting sketch: timeline/versions/invisible-sphere/2026-11-19T15-38-51-324Z/sketch.js\n\nFix the invisible sphere sketch: strokes are not visible while drawing and should appear normally on its surface.\n",
+        "summary": "Draw visible strokes on the invisible rotating sphere, with mouse and touch support.",
+        "sketch": "timeline/versions/invisible-sphere/2026-11-19T15-41-36-420Z/sketch.js",
+        "engine": "three"
+      },
+      {
+        "id": "2026-11-19T15-44-53-078Z",
+        "createdAt": "2026-11-19T15:44:53.078Z",
+        "prompt": "Project: invisible-sphere\nStarting version: 2026-11-19T15-41-36-420Z\nStarting sketch: timeline/versions/invisible-sphere/2026-11-19T15-41-36-420Z/sketch.js\n\nCreate a new iteration with variable stroke thickness.\n",
+        "summary": "Draw variable-width strokes on the invisible rotating sphere: slower gestures leave thicker lines.",
+        "sketch": "timeline/versions/invisible-sphere/2026-11-19T15-44-53-078Z/sketch.js",
+        "engine": "three"
+      },
+      {
+        "id": "2026-11-19T15-47-02-398Z",
+        "createdAt": "2026-11-19T15:47:02.398Z",
+        "prompt": "Project: invisible-sphere\nStarting version: 2026-11-19T15-44-53-078Z\nStarting sketch: timeline/versions/invisible-sphere/2026-11-19T15-44-53-078Z/sketch.js\n\nAdd a UI setting for the maximum stroke thickness.\n",
+        "summary": "Adjust the maximum gesture-driven stroke thickness with a single Tweakpane slider.",
+        "sketch": "timeline/versions/invisible-sphere/2026-11-19T15-47-02-398Z/sketch.js",
+        "engine": "three"
+      },
+      {
+        "id": "2026-11-19T15-49-45-204Z",
+        "createdAt": "2026-11-19T15:49:45.204Z",
+        "prompt": "Project: invisible-sphere\nStarting version: 2026-11-19T15-47-02-398Z\nStarting sketch: timeline/versions/invisible-sphere/2026-11-19T15-47-02-398Z/sketch.js\n\nCreate a new iteration with a shaded visual effect on the strokes.\n",
+        "summary": "Draw shaded, variable-width strokes with bright centers and gray edges on the invisible rotating sphere.",
+        "sketch": "timeline/versions/invisible-sphere/2026-11-19T15-49-45-204Z/sketch.js",
+        "engine": "three"
+      },
+      {
+        "id": "2026-11-19T15-54-09-343Z",
+        "createdAt": "2026-11-19T15:54:09.343Z",
+        "prompt": "Project: invisible-sphere\nStarting version: 2026-11-19T15-49-45-204Z\nStarting sketch: timeline/versions/invisible-sphere/2026-11-19T15-49-45-204Z/sketch.js\n\nIncrease the maximum stroke width limit to 200 px and make the strokes more visually prominent.\n",
+        "summary": "Draw bolder shaded strokes with a broader bright core and a maximum width slider up to 200 px.",
+        "sketch": "timeline/versions/invisible-sphere/2026-11-19T15-54-09-343Z/sketch.js",
+        "engine": "three"
+      }
+    ]
+  },
+  {
+    "id": "typographic-erosion",
+    "title": "Type on Line",
+    "versions": [
+      {
+        "id": "2026-11-19T20-36-53-212Z",
+        "createdAt": "2026-11-19T20:36:53.212Z",
+        "prompt": "Créer une version permettant de dessiner une courbe de Bézier à main levée sur le canvas, puis d’y faire suivre la typographie. Conserver le champ de texte de l’interface et le style minimal défini dans le projet : fond noir et contours blancs.\n",
+        "summary": "Draw a smooth Bézier path and animate outlined typography along it.",
+        "sketch": "timeline/versions/typographic-erosion/2026-11-19T20-36-53-212Z/sketch.js",
+        "engine": "paper"
+      },
+      {
+        "id": "2026-11-19T20-51-13-185Z",
+        "createdAt": "2026-11-19T20:51:13.185Z",
+        "prompt": "Project: typographic-erosion\nStarting version: 2026-11-19T20-36-53-212Z\nStarting sketch: timeline/versions/typographic-erosion/2026-11-19T20-36-53-212Z/sketch.js\n\nCreate a new version that repeats the typographic pattern along the drawn line and adds a text size setting to the UI.\n",
+        "summary": "Repeat outlined text as a moving pattern along a drawn curve, with an adjustable text size.",
+        "sketch": "timeline/versions/typographic-erosion/2026-11-19T20-51-13-185Z/sketch.js",
+        "engine": "paper"
+      },
+      {
+        "id": "2026-11-19T21-04-27-867Z",
+        "createdAt": "2026-11-19T21:04:27.867Z",
+        "prompt": "Project: typographic-erosion\nStarting version: 2026-11-19T20-51-13-185Z\nStarting sketch: timeline/versions/typographic-erosion/2026-11-19T20-51-13-185Z/sketch.js\n\nCreate a new iteration that uses Apple Pencil Pro pressure to change the text size.\n",
+        "summary": "Use Pencil pressure to vary the size of repeated outlined text along a drawn curve.",
+        "sketch": "timeline/versions/typographic-erosion/2026-11-19T21-04-27-867Z/sketch.js",
+        "engine": "paper"
+      },
+      {
+        "id": "2026-11-20T08-32-01-702Z",
+        "createdAt": "2026-11-20T08:32:01.702Z",
+        "prompt": "Project: typographic-erosion\nStarting version: 2026-11-19T20-51-13-185Z\nStarting sketch: timeline/versions/typographic-erosion/2026-11-19T20-51-13-185Z/sketch.js\n\nApple Pencil Pro pressure does not change the text size in this version. Make the text size respond to Pencil pressure and show the typography while drawing the curve.\n",
+        "summary": "Draw live outlined text with Pencil pressure, proportional spacing and a default maximum letter size of 100 px.",
+        "sketch": "timeline/versions/typographic-erosion/2026-11-20T08-32-01-702Z/sketch.js",
+        "engine": "paper"
+      },
+      {
+        "id": "2026-11-20T09-41-01-304Z",
+        "createdAt": "2026-11-20T09:41:01.304Z",
+        "prompt": "Use “RETRACE” in uppercase as the default text for Type on Line.\n",
+        "summary": "Preview the first letter on Pencil hover and tilt the drawn text with Pencil roll or sideways tilt.",
+        "sketch": "timeline/versions/typographic-erosion/2026-11-20T09-41-01-304Z/sketch.js",
+        "engine": "paper"
+      }
+    ]
+  }
+]

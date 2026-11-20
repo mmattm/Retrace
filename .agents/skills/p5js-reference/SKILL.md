@@ -27,11 +27,21 @@ Do not add interactions unless the prompt explicitly requests them. This include
 
 When an interaction is requested, implement only the requested behavior. Existing interactions do not authorize adding more; when reworking a sketch under these defaults, omit interactions not explicitly requested for the result.
 
+## Mouse, touch and pen for requested interactions
+
+Make every requested canvas click, press, drag and release work with mouse, touch and pen. Prefer one Pointer Events path on the canvas returned by `createCanvas(...).elt`; avoid duplicate mouse/touch handlers that trigger the same action twice. For ordinary interface buttons, use native `click` behavior.
+
+For drawing or dragging, track the active `pointerId`, capture it on press, and clean up on release, `pointercancel` and `lostpointercapture`. Ignore unrelated pointers when the interaction supports one gesture at a time. Convert client coordinates through the canvas bounding rectangle into logical `width`/`height` units, independently of pixel density. Apply `touch-action: none` only to a canvas that needs direct touch gestures; keep controls and other scrollable areas usable.
+
+Verify mouse, touch and pen input, release outside the canvas, interruption, extra fingers and scaled coordinates. Preserve sketches that intentionally have no manual interaction. See [MDN's Pointer Events drawing guide](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events/Using_Pointer_Events) when implementing this input path.
+
 ## Requested interfaces: Tweakpane
 
 When the user explicitly requests a sketch interface or parameter controls, use [Tweakpane](https://tweakpane.github.io/docs/) for the relevant controls instead of building equivalent widgets from scratch, unless the user specifies another library. Bind only the requested settings to the sketch's parameters and follow the existing project structure. Check the official documentation for the version being integrated.
 
-Apply a minimal style preset matching the rest of the interface: opaque black background (`#000`), pure white text and controls (`#fff`), a monospace font, thin 1 px borders where needed, and compact spacing. No shadows, gradients, glow, transparency, decorative effects, or extra animation. Use Tweakpane's theme options and scoped CSS overrides as needed.
+Apply a minimal style preset matching the rest of the interface: opaque black background (`#000`), pure white text and controls (`#fff`), the project's font (monospace if unspecified), and thin 1 px borders where needed. No shadows, gradients, glow, transparency, decorative effects, or extra animation. Use Tweakpane's theme options and scoped CSS overrides as needed.
+
+Use the same comfortable sizing for requested controls on desktop, tablet and mobile: at least 44 px control height, 16 px control text, 24 px slider handles and 8 px spacing. Place parameter labels above full-width controls using smaller 12 px text, 16 px line height and a 4 px gap. Keep sizes consistent for mouse, trackpad and touch input; adapt the layout to available space rather than making controls smaller for one device. Use Tweakpane 4's `--tp-container-unit-size`, `--tp-container-unit-spacing` and `--tp-container-vertical-padding` variables, keeping the whole slider track draggable. Keep controls scrollable and avoid browser zoom on text-field focus. Reuse shared sizing when the project provides it; do not duplicate these overrides in each sketch or shrink them with sketch-specific CSS. This does not authorize adding an interface or more controls.
 
 Keep a sketch's requested interface in `ui.js` beside its `sketch.js`, inside the same version folder. Export `createUI(config)` from `ui.js`; keep the Tweakpane import, controls, and scoped styles there. In a global p5 sketch, load it inside async `setup()` with `const { createUI } = await import('./ui.js')`, then call `createUI(CONFIG)` to bind the sketch's parameter object. Do not put version-specific controls in the shared HTML or timeline. When creating a later version, copy and archive both files together so each version retains its own interface. Do not create an empty `ui.js` for sketches without controls.
 

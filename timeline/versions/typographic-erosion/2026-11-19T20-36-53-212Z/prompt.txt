@@ -1,0 +1,1 @@
+Créer une version permettant de dessiner une courbe de Bézier à main levée sur le canvas, puis d’y faire suivre la typographie. Conserver le champ de texte de l’interface et le style minimal défini dans le projet : fond noir et contours blancs.

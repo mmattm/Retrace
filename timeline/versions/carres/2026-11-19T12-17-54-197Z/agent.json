@@ -1,0 +1,170 @@
+{
+  "description": "Repeated motifs of nested squares inspired by Vera Molnár. Each instance contains count layers; instances duplicates the entire motif. Layouts fit copies to the canvas automatically. A two-color palette, an opaque background, fill or outline drawing, opacity and rounded corners change the same square system. Defaults are four black-and-white motifs in a 2-column grid. Only the count slider is visible; the Agent controls all configuration settings.",
+  "systemPrompt": "Interpret requests in any language. Return every declared parameter, preserving all unrelated current values. Never reset other settings to defaults. count means nested squares PER instance; instances means copies of the WHOLE motif. When changing instances in a grid without a specified column count, use ceil(sqrt(instances)) columns. Use layout grid, row, column or ring for the requested arrangement. spacing changes separation; scale changes motif size; offsets move the whole composition, with negative Y upward. Convert angles in degrees to radians. globalRotation sets the base composition angle; spin rotates the whole composition in radians/second. A request to freeze all motion sets speed=0 and spin=0. phaseStep=0 synchronizes copies; larger phaseStep offsets their organic motion. Faster/slower changes speed relatively, normally double/half; more/fewer squares means count plus/minus 5 if unspecified. Set filled=false for outlines and use strokeWidth for line thickness. Use identical colorA and colorB for a single-color result. Set fillMode=gradient only when blending through the palette is requested; otherwise preserve the current mode. Color values MUST be six-digit #RRGGBB strings; translate named colors to hex. opacity is 0–1, so 40 percent means 0.4; roundness is 0–0.5, so 20 percent means 0.2. Keep minSize <= maxSize and keep all values within the schema bounds. Do not generate code or new parameters. Return JSON only.",
+  "parameters": {
+    "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "description": "Nested squares in EACH motif, 1–50. This is the visible slider; use instances to duplicate entire motifs."
+    },
+    "minSize": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 2000,
+      "description": "Smallest square side length in logical canvas pixels. Must not exceed maxSize."
+    },
+    "maxSize": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 2000,
+      "description": "Largest square side length in logical canvas pixels. Must not be smaller than minSize."
+    },
+    "amplitude": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 500,
+      "description": "Maximum positional drift in logical canvas pixels. Zero centers every square; larger values spread their movement farther."
+    },
+    "noiseStep": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 2,
+      "description": "Distance between neighboring Perlin noise samples. Smaller values make motion more coordinated; larger values make neighboring squares move more independently. Zero shares the same noise samples."
+    },
+    "rotation": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 3.141592653589793,
+      "description": "Maximum tilt in radians. Zero keeps squares upright; PI/4 is 45 degrees. The system varies tilt between negative and positive values."
+    },
+    "deformation": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 0.9,
+      "description": "Relative variation of each side length. Zero keeps squares square; 0.08 means up to 8 percent variation, and 0.5 up to 50 percent."
+    },
+    "speed": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 0.1,
+      "description": "Perlin noise time step at 60 fps. Larger values animate faster. Zero freezes motion; the initial speed is 0.006."
+    },
+    "instances": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 16,
+      "description": "Number of copies of the whole nested-square motif, independent of count."
+    },
+    "layout": {
+      "type": "string",
+      "enum": [
+        "grid",
+        "row",
+        "column",
+        "ring"
+      ],
+      "description": "Arrange copies in a grid, horizontal row, vertical column, or circular ring."
+    },
+    "columns": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8,
+      "description": "Grid columns; used only with layout=grid."
+    },
+    "spacing": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 2,
+      "description": "Distance between copy centers. 1 uses the fitted layout; 0 overlaps all copies."
+    },
+    "scale": {
+      "type": "number",
+      "minimum": 0.1,
+      "maximum": 3,
+      "description": "Motif size multiplier after automatic layout fitting. Does not change spacing."
+    },
+    "offsetX": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1,
+      "description": "Whole-composition horizontal offset relative to half the canvas width; negative moves left."
+    },
+    "offsetY": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1,
+      "description": "Whole-composition vertical offset relative to half the canvas height; negative moves up."
+    },
+    "globalRotation": {
+      "type": "number",
+      "minimum": -3.141592653589793,
+      "maximum": 3.141592653589793,
+      "description": "Base rotation of the whole layout in radians, independent of organic layer tilt."
+    },
+    "spin": {
+      "type": "number",
+      "minimum": -2,
+      "maximum": 2,
+      "description": "Continuous whole-layout rotation speed in radians/second; negative reverses direction."
+    },
+    "phaseStep": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 6.283185307179586,
+      "description": "Organic-motion time offset between copies. Zero synchronizes them."
+    },
+    "filled": {
+      "type": "boolean",
+      "description": "true draws solid nested color bands; false draws only outlines."
+    },
+    "fillMode": {
+      "type": "string",
+      "enum": [
+        "alternating",
+        "gradient"
+      ],
+      "description": "Alternate colorA/colorB across layers or interpolate from outer colorA to inner colorB."
+    },
+    "strokeWidth": {
+      "type": "number",
+      "minimum": 0.5,
+      "maximum": 16,
+      "description": "Outline width in logical pixels before motif scaling; used when filled=false."
+    },
+    "roundness": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 0.5,
+      "description": "Corner radius relative to the shortest side. Zero keeps sharp square corners."
+    },
+    "opacity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Shape opacity, including outlines: 1 is opaque, 0 is invisible."
+    },
+    "colorA": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$",
+      "description": "First band or outer gradient color as #RRGGBB."
+    },
+    "colorB": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$",
+      "description": "Second band or inner gradient color as #RRGGBB. Match colorA for a single color."
+    },
+    "backgroundColor": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$",
+      "description": "Opaque canvas background as #RRGGBB."
+    }
+  },
+  "examples": [
+    "Arrange nine square motifs in a 3 by 3 grid.",
+    "Place eight motifs in a ring with cyan outlines.",
+    "Use blue and yellow squares on a white background.",
+    "Round the corners to 20 percent and set opacity to 40 percent.",
+    "Freeze all motion."
+  ]
+}

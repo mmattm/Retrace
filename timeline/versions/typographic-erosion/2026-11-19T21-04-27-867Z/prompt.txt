@@ -1,0 +1,5 @@
+Project: typographic-erosion
+Starting version: 2026-11-19T20-51-13-185Z
+Starting sketch: timeline/versions/typographic-erosion/2026-11-19T20-51-13-185Z/sketch.js
+
+Create a new iteration that uses Apple Pencil Pro pressure to change the text size.

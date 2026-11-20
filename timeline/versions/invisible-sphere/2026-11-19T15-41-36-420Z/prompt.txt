@@ -1,0 +1,5 @@
+Project: invisible-sphere
+Starting version: 2026-11-19T15-38-51-324Z
+Starting sketch: timeline/versions/invisible-sphere/2026-11-19T15-38-51-324Z/sketch.js
+
+Fix the invisible sphere sketch: strokes are not visible while drawing and should appear normally on its surface.

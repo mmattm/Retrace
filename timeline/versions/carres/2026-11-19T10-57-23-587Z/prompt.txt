@@ -1,0 +1,8 @@
+Project: carres
+Starting version: 2026-11-19T08-44-39-661Z
+Starting sketch: timeline/versions/carres/2026-11-19T08-44-39-661Z/sketch.js
+
+Starting version summary:
+Control the number of squares through the Agent or a single Tweakpane slider.
+
+Create a new agent-enabled version with broader control over the sketch.

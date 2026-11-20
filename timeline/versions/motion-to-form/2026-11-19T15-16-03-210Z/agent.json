@@ -1,0 +1,132 @@
+{
+  "mode": "drawing",
+  "description": "A Yellowtail-inspired Paper.js tool animates editable white vector paths on a black canvas. You DRAW by returning paths, not by editing configuration parameters. Draw through the Agent only; mouse, pen and touch do not create strokes. Coordinates are local normalized vertices; the sketch expands each recipe into real animated strokes at random, centered or grid positions. It can approximate simple shapes and freeform outlines. The background and stroke colors stay black and white.",
+  "systemPrompt": "Interpret drawing requests in any language. Return a drawing command matching the schema, never code or parameter updates. Design each requested outline as a compact list of vertices in a local 0\u20131 unit square. A triangle needs three vertices, a square four, and a circle about 12 evenly spaced perimeter vertices. closed=true adds the closing segment; do not repeat the first vertex. Use multiple path designs for different shapes. For random shapes, choose 2\u20134 different simple outlines; for random positions, use placement=random and let the sketch randomize every copy. Default operation=add, size=0.2, thickness=4, speed=1, and one copy of a specifically named shape; for unspecified quantities such as a few random shapes use a modest total of 6\u201312. Default motion=random for closed shapes and follow for open strokes. Requests to clear use operation=clear and strokes=[]. Replace only when asked to replace or start over; otherwise preserve existing drawings. Keep the resulting scene within 128 strokes, using remainingStrokes for add and 128 for replace. No more than 64 copies per path design or six designs per response. Use lastDrawing as a reference for requests for more of the same. Unsupported requests return operation=add and strokes=[]. Return JSON only.",
+  "responseSchema": {
+    "type": "object",
+    "properties": {
+      "operation": {
+        "type": "string",
+        "enum": [
+          "add",
+          "replace",
+          "clear"
+        ],
+        "description": "Add strokes by default; replace only when requested; clear uses an empty strokes array."
+      },
+      "strokes": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "points": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Horizontal coordinate within the local unit square."
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Vertical coordinate within the local unit square."
+                  }
+                },
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 2,
+              "maxItems": 24,
+              "description": "Polyline vertices within a local 0\u20131 unit square. Design the requested shape; do not repeat coordinates to make copies."
+            },
+            "copies": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 64,
+              "description": "Number of copies of this path. Runtime supplies independent random positions when requested."
+            },
+            "placement": {
+              "type": "string",
+              "enum": [
+                "random",
+                "center",
+                "grid"
+              ],
+              "description": "Where to create copies. Grid fits copies to their cells; center shares the canvas center."
+            },
+            "size": {
+              "type": "number",
+              "minimum": 0.03,
+              "maximum": 0.8,
+              "description": "Size of the local unit square relative to the shorter canvas dimension. Default 0.2."
+            },
+            "closed": {
+              "type": "boolean",
+              "description": "Close the outline for polygons or circles; keep false for open gestures."
+            },
+            "thickness": {
+              "type": "number",
+              "minimum": 2,
+              "maximum": 14,
+              "description": "Line width in logical pixels. Default 4."
+            },
+            "motion": {
+              "type": "string",
+              "enum": [
+                "follow",
+                "random",
+                "left",
+                "right",
+                "up",
+                "down",
+                "still"
+              ],
+              "description": "follow replays an open path end-over-end. Other modes move the whole shape or keep it still. Default random for closed shapes, follow for open gestures."
+            },
+            "speed": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 4,
+              "description": "Drift speed in pixels per 60 fps frame, or replay multiplier for follow. Default 1."
+            }
+          },
+          "required": [
+            "points",
+            "copies",
+            "placement",
+            "size",
+            "closed",
+            "thickness",
+            "motion",
+            "speed"
+          ],
+          "additionalProperties": false
+        },
+        "minItems": 0,
+        "maxItems": 6,
+        "description": "Up to six path designs. Each design can create many copies without repeating its vertices."
+      }
+    },
+    "required": [
+      "operation",
+      "strokes"
+    ],
+    "additionalProperties": false
+  },
+  "examples": [
+    "Draw six triangles from random positions.",
+    "Replace the drawing with three circles at random positions.",
+    "Draw five looping zigzag strokes from random positions.",
+    "Draw sixteen squares in a 4 by 4 grid.",
+    "Draw a few different shapes drifting in random directions.",
+    "Clear the drawing."
+  ]
+}

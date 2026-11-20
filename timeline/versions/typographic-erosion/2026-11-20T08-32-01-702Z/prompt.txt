@@ -1,0 +1,5 @@
+Project: typographic-erosion
+Starting version: 2026-11-19T20-51-13-185Z
+Starting sketch: timeline/versions/typographic-erosion/2026-11-19T20-51-13-185Z/sketch.js
+
+Apple Pencil Pro pressure does not change the text size in this version. Make the text size respond to Pencil pressure and show the typography while drawing the curve.

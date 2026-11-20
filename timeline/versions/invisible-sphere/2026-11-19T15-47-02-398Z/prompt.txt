@@ -1,0 +1,5 @@
+Project: invisible-sphere
+Starting version: 2026-11-19T15-44-53-078Z
+Starting sketch: timeline/versions/invisible-sphere/2026-11-19T15-44-53-078Z/sketch.js
+
+Add a UI setting for the maximum stroke thickness.
