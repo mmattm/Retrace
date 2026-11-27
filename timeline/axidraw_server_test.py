@@ -7,6 +7,7 @@ import threading
 import time
 import unittest
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 from axidraw_server import BridgeHandler, Plotter, ThreadingHTTPServer, validate_svg
 
@@ -80,18 +81,17 @@ class BridgeTests(unittest.TestCase):
                 self.assertEqual(api.errors.code, 0)
                 self.assertAlmostEqual(api.distance_pendown, 0.08, places=6)
 
-    def test_usb_status_tracks_plug_and_unplug_without_running_the_api(self):
-        devices = []
+    def test_usb_status_uses_startup_detection(self):
+        detect = Mock(return_value=[])
         api = FakeAPI()
-        bridge = plotter(api, lambda: list(devices))
+        bridge = plotter(api, detect)
+        detect.assert_called_once_with()
+        detect.return_value = ['/dev/axidraw-test']
         self.assertFalse(bridge.status()['connected'])
         with self.assertRaisesRegex(RuntimeError, 'not connected'):
             bridge.start(SVG)
-        devices.append('/dev/axidraw-test')
-        self.assertTrue(bridge.status()['connected'])
-        self.assertEqual(bridge.status()['devices'], devices)
-        devices.clear()
         self.assertFalse(bridge.status()['connected'])
+        detect.assert_called_once_with()
         self.assertFalse(api.started.is_set())
 
     def test_usb_detection_failure_is_not_reported_as_connected(self):

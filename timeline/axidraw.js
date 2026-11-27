@@ -8,9 +8,9 @@ export function supportsAxiDraw(runtime) {
 }
 
 export function axidrawStatusMessage(status) {
-  if (!status) return 'Bridge unavailable. Start the Python script; connection will be checked again.';
+  if (!status) return 'Bridge unavailable. Start the Python script and reload the page.';
   if (status.connectionError) return `AxiDraw connection check failed: ${status.connectionError}`;
-  if (!status.connected) return 'AxiDraw disconnected. Check the USB cable.';
+  if (!status.connected) return 'AxiDraw disconnected. Connect the USB cable, restart the bridge and reload the page.';
   return status.state === 'idle' ? 'AxiDraw connected. Ready to plot.' : `AxiDraw connected. ${status.message}`;
 }
 

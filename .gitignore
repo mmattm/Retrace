@@ -3,3 +3,4 @@ dist/
 .DS_Store
 .venv-axidraw/
 __pycache__/
+/public/assets/fonts/ECAL_Typefaces/

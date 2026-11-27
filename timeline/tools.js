@@ -99,8 +99,6 @@ export function createSketchTools(preview, projectName) {
   let resolutionEdited = false;
   let plotState = null;
   let plotPending = false;
-  let plotChecking = false;
-  let plotTimer = null;
 
   function updateCreditFields() {
     const plot = exportMode === 'axidraw';
@@ -154,16 +152,10 @@ export function createSketchTools(preview, projectName) {
   }
 
   async function checkPlotStatus() {
-    if (plotChecking) return;
-    clearTimeout(plotTimer);
-    plotChecking = true;
     try { plotState = await axidrawRequest('status'); }
     catch { plotState = null; }
-    finally {
-      plotChecking = false;
-      updatePlotStatus();
-      if (dialog.open && exportMode === 'axidraw') plotTimer = setTimeout(checkPlotStatus, 1500);
-    }
+    updatePlotStatus();
+    if (plotState?.state === 'printing') setTimeout(checkPlotStatus, 1500);
   }
 
   function sketch() {
@@ -334,8 +326,7 @@ export function createSketchTools(preview, projectName) {
     download.textContent = plot ? 'Print on AxiDraw' : mode === 'video' ? 'Record canvas' : `Download ${imageFormat.value.toUpperCase()}`;
     download.disabled = video && (!supportsVideoRecording() || choosingWindow);
     updateThumbnail();
-    clearTimeout(plotTimer);
-    if (plot) { updatePlotStatus(); void checkPlotStatus(); }
+    if (plot) updatePlotStatus();
     if (video && !supportsVideoRecording()) status.textContent = 'Video recording is not supported in this browser.';
   }
   imageFormat.addEventListener('change', () => setExportMode(exportMode));
@@ -485,7 +476,6 @@ export function createSketchTools(preview, projectName) {
 
   // Closing export restores the previous playback state, including an existing pause.
   function restorePlayback() {
-    clearTimeout(plotTimer);
     if (!capture) return;
     const previous = capture;
     capture = null;
@@ -650,13 +640,13 @@ export function createSketchTools(preview, projectName) {
       try {
         const svg = await preparePlot(current, exportSize());
         plotState = await axidrawRequest('plot', { svg });
+        if (plotState.state === 'printing') setTimeout(checkPlotStatus, 1500);
       } catch (error) {
         if (capture === current) status.textContent = error instanceof TypeError || error.name === 'TimeoutError'
           ? 'Could not reach the bridge. Check the AxiDraw before retrying.' : error.message;
       } finally {
         plotPending = false;
         updatePlotStatus();
-        if (dialog.open && exportMode === 'axidraw') void checkPlotStatus();
       }
       return;
     }
@@ -687,6 +677,7 @@ export function createSketchTools(preview, projectName) {
     }
   });
 
+  void checkPlotStatus();
   preview.addEventListener('sketch-ready', refresh);
   preview.addEventListener('load', () => {
     refresh();

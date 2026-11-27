@@ -47,29 +47,28 @@ class Plotter:
     def __init__(self, options, factory, find_devices=find_axidraw_devices):
         self.options = options
         self.factory = factory
-        self.find_devices = find_devices
         self.lock = threading.Lock()
         self.state = {'state': 'idle', 'message': 'Ready to plot.'}
 
-    def status(self):
         try:
-            devices = self.find_devices()
-            connection = {'connected': bool(devices), 'devices': devices}
+            devices = find_devices()
+            self.connection = {'connected': bool(devices), 'devices': devices}
         except Exception as error:
-            connection = {'connected': False, 'devices': [], 'connectionError': str(error)}
+            self.connection = {'connected': False, 'devices': [], 'connectionError': str(error)}
+
+    def status(self):
         with self.lock:
-            return {**self.state, **connection}
+            return {**self.state, **self.connection}
 
     def start(self, svg):
         svg = validate_svg(svg)
-        connection = self.status()
         with self.lock:
             if self.state['state'] == 'printing':
                 raise RuntimeError('AxiDraw is already plotting. Wait for it to finish.')
-            if not connection['connected']:
+            if not self.connection['connected']:
                 raise RuntimeError('AxiDraw is not connected. Check its USB cable.')
             self.state = {'state': 'printing', 'message': 'Plotting… Use the physical pause button to stop.'}
-            result = {**connection, **self.state}
+            result = {**self.connection, **self.state}
             threading.Thread(target=self.run, args=(svg,), daemon=True).start()
         return result
 
