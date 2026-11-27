@@ -1,0 +1,17 @@
+Piet, Atzori-Piet_1.otf, Jacopo Atzori 
+Sinalco, Baatevik-Sinalco.otf, Arve Båtevik
+Speira, Baranowski-Speira-Bold, Elena Baranowski
+Les Rois D’une Nuit, Benatar-LesRoisDuneNuit-Bold.otf, Noam Benatar
+Tikgo, Brun-Tikgo-Heavy.otf, Benoit Brun
+Père Lachaise, Benediktsdóttir-PereLaChaise-Regular.otf, Hólmfríöur Benediktsdóttir
+Cassette, Berard-CassetteStandard.otf, Edouard Bérard
+Resala, Bernklau-Resial-BoldCondensed.otf, Nicolas Bernklau
+Fugu, LeeKyungJin-Fugu-Regular.otf, Kyung Jin Lee
+Ma’as, maas-Bold.otf, Karim Akel
+Entro, Rasskazov-EntroPressR22-Regular.otf, Seryozha Rasskazov
+MLM, Seseke-MLM-Dotmatrix.otf, Anne Seseke 
+Water Polo Display, Tang-WaterPoloDISPLAY-Regular.otf, Rongyi Tang
+Ludibrio, Malossi-Ludibrio.ttf, Alberto Malossi
+Supertifo, Tronchin-Supertifo-Square.otf, Romain Tronchin
+Varia, VariaBeta-LOD4.otf, Alexis Gargaloni
+

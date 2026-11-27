@@ -178,7 +178,8 @@ body.has-controls:not(.controls-hidden):not(.interface-hidden) {
 }
 #sketch-controls .tp-sldv_t:focus-visible { outline: 1px solid var(--controls-foreground); }
 
-#sketch-controls .tp-txtv_i {
+#sketch-controls .tp-txtv_i,
+#sketch-controls .tp-lstv_s {
   box-sizing: border-box;
   border: 1px solid currentColor;
   border-radius: 0;

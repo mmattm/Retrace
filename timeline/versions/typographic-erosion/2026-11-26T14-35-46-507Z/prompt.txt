@@ -1,0 +1,1 @@
+Modifier la dernière itération de « Type on Line » pour donner aux splines des segments un mouvement plus organique, avec un comportement physique et souple.

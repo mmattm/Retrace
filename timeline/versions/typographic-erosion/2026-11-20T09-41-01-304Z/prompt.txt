@@ -1,1 +1,0 @@
-Use “RETRACE” in uppercase as the default text for Type on Line.

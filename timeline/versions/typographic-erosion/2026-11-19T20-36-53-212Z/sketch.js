@@ -21,6 +21,7 @@ let freeSpace = 0;
 let animationTime = 0;
 
 async function setup() {
+  await document.fonts.load('400 100px "Unica77LL"');
   background = new paper.Path.Rectangle({
     rectangle: paper.view.bounds,
     fillColor: BACKGROUND,
@@ -167,7 +168,7 @@ function rebuildTypography() {
   if (!guidePath || !renderedText.length) return;
 
   const characters = Array.from(renderedText.normalize('NFC'));
-  measureContext.font = '700 100px Arial';
+  measureContext.font = '400 100px Unica77LL';
   const widths = characters.map(character => measureContext.measureText(character).width);
   const spacing = 5;
   const measuredWidth = widths.reduce((sum, width) => sum + width, 0) + spacing * (characters.length - 1);
@@ -186,9 +187,9 @@ function rebuildTypography() {
         fillColor: null,
         strokeColor: OUTLINE,
         strokeWidth: 1.2,
-        fontFamily: 'Arial',
+        fontFamily: 'Unica77LL',
         fontSize: 100 * scale,
-        fontWeight: 'bold',
+        fontWeight: 'normal',
         justification: 'center',
         strokeJoin: 'round',
       }),

@@ -1,5 +1,7 @@
 import { getSketchRuntime } from './runtime.js';
+import { creditLines, findFontCredit } from './plot-credits.js';
 import { createTextPrompt } from './text.js';
+import { axidrawRequest, axidrawStatusMessage, createPlotSVG, drawPlotPreview, loadPlotPreview, preparePlotText, supportsAxiDraw } from './axidraw.js';
 import { RECORDING_FPS, captureBrowserTab, recordCanvas, supportsTabCapture, supportsVideoRecording } from './video.js';
 
 // Copy pixels only: sidebar controls, CSS borders and toolbar labels are excluded.
@@ -52,6 +54,17 @@ export function createSketchTools(preview, projectName) {
   const outputScale = form.elements.namedItem('scale');
   const imageFormat = form.elements.namedItem('image-format');
   const videoResolution = form.elements.namedItem('video-resolution');
+  const plotPaper = form.elements.namedItem('plot-paper');
+  const plotOrientation = form.elements.namedItem('plot-orientation');
+  const plotWidth = form.elements.namedItem('plot-width');
+  const plotHeight = form.elements.namedItem('plot-height');
+  const plotRescale = form.elements.namedItem('plot-rescale');
+  const plotRescaleValue = form.elements.namedItem('plot-rescale-value');
+  const creditsToggle = form.elements.namedItem('plot-credits');
+  const creditFields = ['font', 'author', 'event'].map(key => form.elements.namedItem('credit-' + key));
+  const plotPanel = dialog.querySelector('.export-axidraw');
+  const plotStatus = dialog.querySelector('.export-axidraw-status');
+  const pdfButton = dialog.querySelector('.export-plot-pdf');
   const formatLabel = dialog.querySelector('.export-format-label');
   const outputSize = dialog.querySelector('.export-size');
   const thumbnail = dialog.querySelector('.export-preview');
@@ -72,6 +85,7 @@ export function createSketchTools(preview, projectName) {
     'poster-landscape': [Math.round(2000 * Math.SQRT2), 2000],
   };
   const videoSizes = { '720p': [1280, 720], '1080p': [1920, 1080], '2k': [2048, 1080], qhd: [2560, 1440], '4k': [3840, 2160] };
+  const plotPaperSizes = { a4: [210, 297], a3: [297, 420], sra3: [320, 450] };
   const ratioLabels = [...ratio.options].map(option => option.textContent);
   let capture = null;
   let cropDrag = null;
@@ -83,6 +97,74 @@ export function createSketchTools(preview, projectName) {
   let recordUI = false;
   let choosingWindow = false;
   let resolutionEdited = false;
+  let plotState = null;
+  let plotPending = false;
+  let plotChecking = false;
+  let plotTimer = null;
+
+  function updateCreditFields() {
+    const plot = exportMode === 'axidraw';
+    creditsToggle.disabled = !plot;
+    creditsToggle.closest('label').hidden = !plot;
+    for (const field of creditFields) {
+      field.disabled = !plot || !creditsToggle.checked;
+      field.closest('label').hidden = field.disabled;
+    }
+  }
+
+  function getCreditValues() {
+    if (!creditsToggle.checked) return [];
+    const [name, designer, event] = creditFields.map(field => field.value.trim());
+    return [name, designer ? `Font by ${designer}` : '', event];
+  }
+
+  function initCredits(current) {
+    const font = current.runtime.getPlotFont?.() ?? {};
+    font.name ||= current.svg?.querySelector?.('text[font-family]')?.getAttribute('font-family') || '';
+    const defaults = [...findFontCredit('', font), 'ECAL Open Day 2026'];
+    creditFields.forEach((field, index) => { field.value = defaults[index]; });
+    const edited = new Set();
+    current.editedCredits = edited;
+    // Match the face frozen with this capture and preserve edits made during the fetch.
+    current.creditDefaults = (async () => {
+      if (!font.file) return;
+      try {
+        const response = await fetch('/assets/credits.txt');
+        if (!response.ok) return;
+        const matched = findFontCredit(await response.text(), font);
+        if (capture !== current) return;
+        matched.forEach((value, index) => { if (!edited.has(creditFields[index])) creditFields[index].value = value; });
+        if (exportMode === 'axidraw' && creditsToggle.checked) updateThumbnail();
+      } catch { /* The font's embedded credits are already available in the fields. */ }
+    })();
+  }
+  creditsToggle.addEventListener('change', () => { updateCreditFields(); updateThumbnail(); });
+  for (const field of creditFields) field.addEventListener('input', () => {
+    capture?.editedCredits?.add(field);
+    updateThumbnail();
+  });
+
+  function updatePlotStatus() {
+    if (exportMode !== 'axidraw') return;
+    const vectors = supportsAxiDraw(capture?.runtime);
+    plotStatus.textContent = !vectors ? 'AxiDraw requires a vector SVG. Use a Paper.js sketch.'
+      : plotPending ? 'Sending to AxiDraw…'
+      : axidrawStatusMessage(plotState);
+    download.disabled = !vectors || !plotState?.connected || plotPending || plotState.state === 'printing';
+  }
+
+  async function checkPlotStatus() {
+    if (plotChecking) return;
+    clearTimeout(plotTimer);
+    plotChecking = true;
+    try { plotState = await axidrawRequest('status'); }
+    catch { plotState = null; }
+    finally {
+      plotChecking = false;
+      updatePlotStatus();
+      if (dialog.open && exportMode === 'axidraw') plotTimer = setTimeout(checkPlotStatus, 1500);
+    }
+  }
 
   function sketch() {
     const win = preview.contentWindow;
@@ -147,6 +229,7 @@ export function createSketchTools(preview, projectName) {
   document.addEventListener('keydown', handleSpace);
 
   function exportSize() {
+    if (exportMode === 'axidraw') return { width: plotWidth.valueAsNumber, height: plotHeight.valueAsNumber };
     if (exportMode === 'video') {
       const [w, h] = videoSizes[videoResolution.value];
       return ratio.value === '9:16' ? { width: h, height: w } : { width: w, height: h };
@@ -156,28 +239,57 @@ export function createSketchTools(preview, projectName) {
 
   function updateThumbnail() {
     const size = exportSize();
-    outputScale.setCustomValidity(size.width > 8192 || size.height > 8192 ? 'Output must not exceed 8192 px per side. Reduce the size or scale.' : '');
-    outputSize.textContent = size.width > 0 && size.height > 0 ? `${exportMode === 'video' ? 'Canvas output' : 'Output'}: ${size.width} × ${size.height} px` : '';
+    outputScale.setCustomValidity(exportMode === 'image' && (size.width > 8192 || size.height > 8192) ? 'Output must not exceed 8192 px per side. Reduce the size or scale.' : '');
+    outputSize.textContent = size.width > 0 && size.height > 0 ? `${exportMode === 'video' ? 'Canvas output' : 'Output'}: ${size.width} × ${size.height} ${exportMode === 'axidraw' ? 'mm' : 'px'}` : '';
     outputSize.hidden = exportMode === 'video' && recordUI;
     if (!capture || !form.checkValidity()) return;
     const { image, position } = capture;
+    const crop = getCrop(image, size, position);
     const scale = Math.min(1, 480 / image.width, 280 / image.height);
     thumbnail.width = Math.max(1, Math.round(image.width * scale));
     thumbnail.height = Math.max(1, Math.round(image.height * scale));
-    thumbnail.getContext('2d').drawImage(image, 0, 0, thumbnail.width, thumbnail.height);
-    const crop = getCrop(image, size, position);
+    const context = thumbnail.getContext('2d');
+    if (exportMode === 'axidraw') {
+      const scale = plotRescale.valueAsNumber / 100;
+      const creditValues = getCreditValues();
+      const key = JSON.stringify([scale, crop, size, creditValues]);
+      if (capture.plotPreviewLoading !== key) capture.plotPreviewLoading = null;
+      drawPlotPreview(thumbnail, capture.plotPreview);
+      if (capture.plotPreviewKey !== key && capture.plotPreviewLoading !== key) {
+        const current = capture;
+        const previewSize = { width: thumbnail.width, height: thumbnail.height };
+        current.plotPreviewLoading = key;
+        Promise.resolve().then(() => loadPlotPreview(current, previewSize, { scale, center: crop, creditValues, paperSize: size })).then(image => {
+          if (current.plotPreviewLoading !== key) return;
+          current.plotPreview = image;
+          current.plotPreviewKey = key;
+          current.plotPreviewLoading = null;
+          current.plotPreviewError = '';
+          if (capture === current && exportMode === 'axidraw') updateThumbnail();
+        }).catch(error => {
+          if (current.plotPreviewLoading !== key) return;
+          current.plotPreviewLoading = null;
+          current.plotPreviewError = error instanceof TypeError ? 'Start the Python bridge to convert text into vector paths.' : error.message;
+          if (capture === current && exportMode === 'axidraw') status.textContent = current.plotPreviewError;
+        });
+      }
+    } else context.drawImage(image, 0, 0, thumbnail.width, thumbnail.height);
     Object.assign(cropFrame.style, {
       left: `${crop.x / image.width * 100}%`, top: `${crop.y / image.height * 100}%`,
       width: `${crop.width / image.width * 100}%`, height: `${crop.height / image.height * 100}%`,
     });
-    status.textContent = '';
+    status.textContent = exportMode === 'axidraw' ? capture.plotPreviewError || '' : '';
   }
 
   function setExportMode(mode) {
+    const canPlot = supportsAxiDraw(capture?.runtime);
+    if (mode === 'axidraw' && !canPlot) mode = 'image';
     const video = mode === 'video';
+    const plot = mode === 'axidraw';
     if (video && exportMode !== 'video') imageRatio = ratio.value;
     if (!video && exportMode === 'video') ratio.value = imageRatio;
     exportMode = mode;
+    updateCreditFields();
     [...ratio.options].forEach((option, index) => {
       option.hidden = option.disabled = video && !['16:9', '9:16'].includes(option.value);
       option.textContent = video ? option.value === '9:16' ? 'Portrait' : 'Landscape' : ratioLabels[index];
@@ -185,15 +297,27 @@ export function createSketchTools(preview, projectName) {
     if (video && !['16:9', '9:16'].includes(ratio.value)) ratio.value = '16:9';
     formatLabel.textContent = video ? 'Canvas orientation' : 'Aspect ratio';
     settings.classList.toggle('is-video', video);
+    settings.classList.toggle('is-axidraw', plot);
+    dialog.querySelector('#export-note').textContent = `The ${plot ? 'black' : 'white'} frame marks the export area. Drag it or use arrow keys to reposition.`;
+    plotPanel.hidden = !plot;
+    pdfButton.hidden = !plot;
+    dialog.querySelector('.export-actions [data-close]').textContent = plot ? 'Close' : 'Cancel';
+    ratio.disabled = plot;
+    ratio.closest('label').hidden = plot;
     for (const input of [width, height, outputScale]) {
-      input.disabled = video;
-      input.closest('label').hidden = video;
+      input.disabled = video || plot;
+      input.closest('label').hidden = video || plot;
+    }
+    for (const input of [plotPaper, plotOrientation, plotWidth, plotHeight, plotRescale]) {
+      input.disabled = !plot;
+      input.closest('label').hidden = !plot;
     }
     videoResolution.disabled = !video;
-    imageFormat.disabled = video || !capture?.runtime.exportSVG;
+    imageFormat.disabled = video || plot || !capture?.runtime.exportSVG;
     imageFormat.closest('label').hidden = imageFormat.disabled;
     videoResolution.closest('label').hidden = !video;
     tabs.forEach(tab => {
+      tab.hidden = tab.disabled = tab.dataset.exportMode === 'axidraw' && !canPlot;
       const selected = tab.dataset.exportMode === mode;
       tab.setAttribute('aria-selected', String(selected));
       tab.tabIndex = selected ? 0 : -1;
@@ -207,9 +331,11 @@ export function createSketchTools(preview, projectName) {
     videoNote.textContent = recordUI
       ? `Records the full tab at up to ${RECORDING_FPS} fps, including controls and Agent prompts. The selected resolution sets the longest side.`
       : `Record the canvas at up to ${RECORDING_FPS} fps, without audio. Record window keeps the window’s proportions. Click Stop record to save.`;
-    download.textContent = mode === 'video' ? 'Record canvas' : `Download ${imageFormat.value.toUpperCase()}`;
+    download.textContent = plot ? 'Print on AxiDraw' : mode === 'video' ? 'Record canvas' : `Download ${imageFormat.value.toUpperCase()}`;
     download.disabled = video && (!supportsVideoRecording() || choosingWindow);
     updateThumbnail();
+    clearTimeout(plotTimer);
+    if (plot) { updatePlotStatus(); void checkPlotStatus(); }
     if (video && !supportsVideoRecording()) status.textContent = 'Video recording is not supported in this browser.';
   }
   imageFormat.addEventListener('change', () => setExportMode(exportMode));
@@ -241,18 +367,20 @@ export function createSketchTools(preview, projectName) {
       }
     }
   });
-  tabs.forEach((tab, index) => {
+  tabs.forEach(tab => {
     tab.addEventListener('click', () => setExportMode(tab.dataset.exportMode));
     tab.addEventListener('keydown', event => {
+      const available = tabs.filter(tab => !tab.hidden && !tab.disabled);
+      const index = available.indexOf(tab);
       let next;
-      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-      else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
+      if (event.key === 'ArrowRight') next = (index + 1) % available.length;
+      else if (event.key === 'ArrowLeft') next = (index + available.length - 1) % available.length;
       else if (event.key === 'Home') next = 0;
-      else if (event.key === 'End') next = tabs.length - 1;
+      else if (event.key === 'End') next = available.length - 1;
       else return;
       event.preventDefault();
-      setExportMode(tabs[next].dataset.exportMode);
-      tabs[next].focus();
+      setExportMode(available[next].dataset.exportMode);
+      available[next].focus();
     });
   });
 
@@ -314,6 +442,32 @@ export function createSketchTools(preview, projectName) {
     updateThumbnail();
   });
   outputScale.addEventListener('change', updateThumbnail);
+  function updatePlotPaper() {
+    const preset = plotPaperSizes[plotPaper.value];
+    const landscape = plotOrientation.value === 'landscape';
+    if (preset) {
+      [plotWidth.value, plotHeight.value] = landscape ? [preset[1], preset[0]] : preset;
+    } else if (Number.isFinite(plotWidth.valueAsNumber) && Number.isFinite(plotHeight.valueAsNumber)
+      && (plotWidth.valueAsNumber > plotHeight.valueAsNumber) !== landscape) {
+      [plotWidth.value, plotHeight.value] = [plotHeight.value, plotWidth.value];
+    }
+    updateThumbnail();
+  }
+  plotPaper.addEventListener('change', updatePlotPaper);
+  plotOrientation.addEventListener('change', updatePlotPaper);
+  plotRescale.addEventListener('input', () => {
+    plotRescaleValue.value = `${plotRescale.value}%`;
+    updateThumbnail();
+  });
+  for (const input of [plotWidth, plotHeight]) {
+    input.addEventListener('input', () => {
+      plotPaper.value = 'custom';
+      if (plotWidth.valueAsNumber > 0 && plotHeight.valueAsNumber > 0) {
+        plotOrientation.value = plotWidth.valueAsNumber > plotHeight.valueAsNumber ? 'landscape' : 'portrait';
+      }
+      updateThumbnail();
+    });
+  }
   videoResolution.addEventListener('change', () => {
     resolutionEdited = true;
     updateThumbnail();
@@ -331,6 +485,7 @@ export function createSketchTools(preview, projectName) {
 
   // Closing export restores the previous playback state, including an existing pause.
   function restorePlayback() {
+    clearTimeout(plotTimer);
     if (!capture) return;
     const previous = capture;
     capture = null;
@@ -431,6 +586,7 @@ export function createSketchTools(preview, projectName) {
     current.runtime.pause();
     try {
       capture = { ...current, wasRunning, image: copyCanvas(current.canvas), svg: current.runtime.snapshotSVG?.(), name: projectName(), position: { x: 0.5, y: 0.5 } };
+      if (supportsAxiDraw(current.runtime)) initCredits(capture);
       const scale = Math.min(1, 8192 / capture.image.width, 8192 / capture.image.height);
       width.value = Math.max(1, Math.round(capture.image.width * scale));
       height.value = Math.max(1, Math.round(capture.image.height * scale));
@@ -449,6 +605,33 @@ export function createSketchTools(preview, projectName) {
     refresh();
   });
 
+  async function preparePlot(current, size) {
+    const crop = getCrop(current.image, size, current.position);
+    const scale = plotRescale.valueAsNumber / 100;
+    await current.creditDefaults;
+    const credits = await creditLines(getCreditValues());
+    await preparePlotText(current);
+    return createPlotSVG(current, size, crop, 'mm', { scale, credits });
+  }
+
+  pdfButton.addEventListener('click', async () => {
+    if (exportMode !== 'axidraw' || !capture || !form.reportValidity() || pdfButton.disabled) return;
+    const current = capture;
+    const size = exportSize();
+    pdfButton.disabled = true;
+    pdfButton.textContent = 'Preparing PDF…';
+    try {
+      const [svg, { plotPDF }] = await Promise.all([preparePlot(current, size), import('./plot-pdf.js')]);
+      const blob = await plotPDF(svg, size);
+      if (capture === current) saveBlob(blob, `${current.name}-axidraw-${size.width}x${size.height}mm.pdf`);
+    } catch (error) {
+      if (capture === current) status.textContent = error.message || 'Could not export the PDF.';
+    } finally {
+      pdfButton.disabled = false;
+      pdfButton.textContent = 'Export PDF';
+    }
+  });
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!capture || !form.reportValidity()) return;
@@ -459,6 +642,24 @@ export function createSketchTools(preview, projectName) {
       return;
     }
     const current = capture;
+    if (exportMode === 'axidraw') {
+      if (plotPending || !supportsAxiDraw(current.runtime) || !plotState?.connected || plotState.state === 'printing') return;
+      status.textContent = '';
+      plotPending = true;
+      updatePlotStatus();
+      try {
+        const svg = await preparePlot(current, exportSize());
+        plotState = await axidrawRequest('plot', { svg });
+      } catch (error) {
+        if (capture === current) status.textContent = error instanceof TypeError || error.name === 'TimeoutError'
+          ? 'Could not reach the bridge. Check the AxiDraw before retrying.' : error.message;
+      } finally {
+        plotPending = false;
+        updatePlotStatus();
+        if (dialog.open && exportMode === 'axidraw') void checkPlotStatus();
+      }
+      return;
+    }
     download.disabled = true;
     status.textContent = `Preparing ${imageFormat.value.toUpperCase()}…`;
     try {

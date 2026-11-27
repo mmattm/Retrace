@@ -1,9 +1,23 @@
 import { defineConfig } from 'vite';
 import { localProjectDeletion } from './timeline/project-delete.js';
+import { localProjectImport } from './timeline/project-import.js';
 
 export default defineConfig({
   server: {
     proxy: {
+      '^/api/axidraw/(status|plot|prepare)$': {
+        target: 'http://127.0.0.1:8765',
+        changeOrigin: true,
+        bypass(request) {
+          const method = request.url === '/api/axidraw/status' ? 'GET' : 'POST';
+          const { origin, host } = request.headers;
+          if (request.method !== method) return false;
+          if (origin && origin !== `http://${host}` && origin !== `https://${host}`) return false;
+        },
+        configure(proxy) {
+          proxy.on('proxyReq', request => request.removeHeader('origin'));
+        },
+      },
       '^/api/(tags|chat)$': {
         target: 'http://127.0.0.1:11434',
         changeOrigin: true,
@@ -20,7 +34,7 @@ export default defineConfig({
       },
     },
   },
-  plugins: [localProjectDeletion(), {
+  plugins: [localProjectDeletion(), localProjectImport(), {
     name: 'retrace-network-addresses',
     apply: 'serve',
     transformIndexHtml(_html, { server }) {

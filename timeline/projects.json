@@ -174,11 +174,27 @@
         "engine": "paper"
       },
       {
-        "id": "2026-11-20T09-41-01-304Z",
-        "createdAt": "2026-11-20T09:41:01.304Z",
-        "prompt": "Use “RETRACE” in uppercase as the default text for Type on Line.\n",
-        "summary": "Preview the first letter on Pencil hover and tilt the drawn text with Pencil roll or sideways tilt.",
-        "sketch": "timeline/versions/typographic-erosion/2026-11-20T09-41-01-304Z/sketch.js",
+        "id": "2026-11-26T14-35-46-507Z",
+        "createdAt": "2026-11-26T14:35:46.507Z",
+        "prompt": "Modifier la dernière itération de « Type on Line » pour donner aux splines des segments un mouvement plus organique, avec un comportement physique et souple.\n",
+        "summary": "Animate long letter fragments as elastic splines with inertia, damping and Perlin currents.",
+        "sketch": "timeline/versions/typographic-erosion/2026-11-26T14-35-46-507Z/sketch.js",
+        "engine": "paper"
+      },
+      {
+        "id": "2026-11-27T10-18-25-385Z",
+        "createdAt": "2026-11-27T10:18:25.385Z",
+        "prompt": "Project: typographic-erosion\nStarting version: 2026-11-27T10-16-11-427Z\nSketch: timeline/versions/typographic-erosion/2026-11-27T10-16-11-427Z/sketch.js\n\nModifier la dernière itération pour augmenter la taille maximale de la police et régler Wiggle à 0 par défaut.\n\nRendre le Spread beaucoup plus aléatoire dans le dessin, avec une dispersion plus progressive.\n",
+        "summary": "Increase text size to 600 px, default Wiggle to zero and scatter fragments randomly with progressive Spread.",
+        "sketch": "timeline/versions/typographic-erosion/2026-11-27T10-18-25-385Z/sketch.js",
+        "engine": "paper"
+      },
+      {
+        "id": "2026-11-27T10-31-00-803Z",
+        "createdAt": "2026-11-27T10:31:00.803Z",
+        "prompt": "Project: typographic-erosion\nStarting version: 2026-11-27T10-18-25-385Z\nSketch: timeline/versions/typographic-erosion/2026-11-27T10-18-25-385Z/sketch.js\n\nDeux dossiers ont été ajoutés dans fonts : Axidraw et ECAL_Typefaces.\n\nCréer une nouvelle itération avec un menu déroulant permettant de sélectionner une police et de changer celle du texte dans le canvas.\n\nLes polices AxiDraw sont des polices à trait simple (single-line fonts) : utiliser leurs tracés simples, sans doubler les traits comme pour les contours des autres polices.\n",
+        "summary": "Switch existing text curves between 18 fonts, using true single-line SVG strokes for AxiDraw.",
+        "sketch": "timeline/versions/typographic-erosion/2026-11-27T10-31-00-803Z/sketch.js",
         "engine": "paper"
       }
     ]

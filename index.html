@@ -53,6 +53,7 @@
         <span class="shortcut-hint" aria-hidden="true">(c)</span>
       </button>
       <nav class="projects-panel" id="projects-panel" aria-label="Projects" aria-hidden="true" inert>
+        <div class="history-actions"><button class="projects-import history-action" type="button">Import</button></div>
         <div class="projects-grid"></div>
       </nav>
       <section class="timeline-panel" id="timeline-panel" aria-label="Sketch history" aria-hidden="true" inert>
@@ -64,10 +65,13 @@
           <button class="timeline-prompt" type="button" title="Copy the version summary and reference"><span class="timeline-prompt-text"></span></button>
           <div class="timeline-version-meta">
             <time class="timeline-date"></time>
+            <button class="iteration-export history-action" type="button" disabled>Export</button>
+            <button class="iteration-import history-action" type="button">Import</button>
             <button class="timeline-delete history-delete" type="button" aria-label="Delete selected iteration" hidden>Delete</button>
           </div>
         </div>
       </section>
+      <input class="history-import-file" type="file" accept=".json,application/json" aria-label="Import Retrace JSON archive" hidden>
       <footer class="timeline-footer">
         <button class="projects-toggle" type="button" aria-expanded="false" aria-controls="projects-panel" aria-keyshortcuts="Tab" title="Choose a project (Tab)">
           <span class="timeline-chevron" aria-hidden="true"></span>
@@ -107,6 +111,7 @@
             <div class="export-tabs" role="tablist" aria-label="Export type">
               <button id="export-image-tab" type="button" role="tab" aria-selected="true" aria-controls="export-settings" data-export-mode="image">Image</button>
               <button id="export-video-tab" type="button" role="tab" aria-selected="false" aria-controls="export-settings" tabindex="-1" data-export-mode="video">Video</button>
+              <button id="export-axidraw-tab" type="button" role="tab" aria-selected="false" aria-controls="export-settings" tabindex="-1" data-export-mode="axidraw" hidden disabled>AxiDraw</button>
             </div>
             <button class="export-dismiss" type="button" aria-label="Close export" data-close>×</button>
           </div>
@@ -159,13 +164,41 @@
                   <option value="5">×5</option>
                 </select></span>
               </label>
+              <label class="export-plot-field" hidden>Paper size
+                <span class="export-select"><select name="plot-paper" disabled>
+                  <option value="a4" selected>A4 — 210 × 297 mm</option>
+                  <option value="a3">A3 — 297 × 420 mm</option>
+                  <option value="sra3">SRA3 — 320 × 450 mm</option>
+                  <option value="custom">Custom</option>
+                </select></span>
+              </label>
+              <label class="export-plot-field" hidden>Composition orientation
+                <span class="export-select"><select name="plot-orientation" disabled>
+                  <option value="landscape" selected>Landscape</option>
+                  <option value="portrait">Portrait</option>
+                </select></span>
+              </label>
+              <label class="export-plot-field" hidden>Width (mm)<input name="plot-width" type="number" min="1" max="1000" step="0.1" value="297" required disabled></label>
+              <label class="export-plot-field" hidden>Height (mm)<input name="plot-height" type="number" min="1" max="1000" step="0.1" value="210" required disabled></label>
+              <label class="export-plot-field export-plot-rescale" hidden><span>Rescale <output name="plot-rescale-value">100%</output></span>
+                <input name="plot-rescale" type="range" min="10" max="200" step="1" value="100" disabled>
+              </label>
+              <label class="export-credit-toggle" hidden><input type="checkbox" name="plot-credits" disabled>Credits</label>
+              <label hidden>Font name<input type="text" name="credit-font" disabled></label>
+              <label hidden>Font by<input type="text" name="credit-author" disabled></label>
+              <label hidden>Event<input type="text" name="credit-event" value="ECAL Open Day 2026" disabled></label>
             </div>
             <p class="export-note export-size" aria-live="polite"></p>
             <p class="export-note export-video-note" hidden></p>
+            <div class="export-axidraw" hidden>
+              <p class="export-note">Start <code>.venv-axidraw/bin/python timeline/axidraw_server.py</code> on the computer connected by USB. Place the paper in landscape and the pen at the top-left origin. Portrait compositions rotate 90° for plotting, at the same size. The paper preview shows black pen paths; text is converted using locally installed fonts. Fills and images are skipped. Closing this dialog keeps plotting. Use the AxiDraw’s physical pause button to stop.</p>
+              <p class="export-axidraw-status export-note" role="status"></p>
+            </div>
             <p class="export-status" role="status"></p>
             <div class="export-actions">
               <button type="button" data-close>Cancel</button>
               <button class="export-show-ui" type="button" title="Record the browser tab, including controls and Agent prompts" hidden>Record window</button>
+              <button class="export-plot-pdf" type="button" hidden>Export PDF</button>
               <button type="submit">Download PNG</button>
             </div>
           </div>

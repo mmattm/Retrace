@@ -5,10 +5,12 @@ import sketchStyle from '../style.css?inline';
 import frameUrl from './frame.js?url';
 import { createSketchTools } from './tools.js';
 import { installTouchGuards } from './touch.js';
+import { createArchive, maxArchiveBytes, validateArchive } from './archive.js';
 
 installTouchGuards(document);
 
 const agents = import.meta.glob('./versions/**/agent.json', { eager: true, import: 'default' });
+const archiveSources = import.meta.glob('./versions/**/*.{js,json,txt}', { query: '?raw', import: 'default' });
 // Map each sketch to its URL without running its code in the interface.
 const sketches = import.meta.glob('./versions/**/sketch.js', {
   eager: true,
@@ -20,7 +22,7 @@ const ui = document.getElementById('sketch-timeline');
 const panel = ui.querySelector('.timeline-panel');
 const toggle = ui.querySelector('.timeline-toggle');
 const latest = ui.querySelector('.timeline-latest');
-const slider = ui.querySelector('input');
+const slider = ui.querySelector('.timeline-rail input');
 const dots = ui.querySelector('.timeline-dots');
 const date = ui.querySelector('.timeline-date');
 const count = ui.querySelector('.timeline-count');
@@ -94,6 +96,70 @@ let copyFeedbackTimer;
 let selectionAnimation;
 const sketchTools = createSketchTools(preview, () => project?.id ?? 'sketch');
 const canDeleteHistory = import.meta.env.DEV && ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+const importFile = ui.querySelector('.history-import-file');
+const iterationExport = ui.querySelector('.iteration-export');
+const iterationImport = ui.querySelector('.iteration-import');
+const projectImport = ui.querySelector('.projects-import');
+let importTarget;
+
+async function downloadArchive(button, item, version) {
+  button.disabled = true;
+  try {
+    const archive = await createArchive(item, version, archiveSources);
+    const blob = new Blob([JSON.stringify(archive, null, 2) + '\n'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${item.id}${version ? `-${version.id}` : ''}.json`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch {
+    window.alert('Could not export this archive.');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+for (const button of [projectImport, iterationImport]) {
+  button.disabled = !canDeleteHistory;
+  if (!canDeleteHistory) button.title = 'Open Retrace on localhost to import JSON files.';
+  button.addEventListener('click', () => {
+    importTarget = button === iterationImport ? project?.id : undefined;
+    importFile.value = '';
+    importFile.click();
+  });
+}
+iterationExport.addEventListener('click', () => {
+  if (versions[selected]) downloadArchive(iterationExport, project, versions[selected]);
+});
+importFile.addEventListener('change', async () => {
+  const file = importFile.files[0];
+  if (!file) return;
+  projectImport.disabled = iterationImport.disabled = true;
+  try {
+    if (file.size > maxArchiveBytes - 1024) throw new Error('JSON archive is too large (maximum 20 MB).');
+    const archive = validateArchive(JSON.parse(await file.text()));
+    if (importTarget && archive.kind !== 'iteration') throw new Error('Choose an iteration JSON file to import into this project.');
+    const response = await fetch('/api/projects/import', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ archive, targetProjectId: importTarget }),
+    });
+    if (!response.ok) throw new Error(await response.text() || 'Import failed.');
+    const result = await response.json();
+    const url = new URL(location.href);
+    url.searchParams.set('project', result.projectId);
+    if (result.versionId) url.searchParams.set('version', result.versionId);
+    else url.searchParams.delete('version');
+    location.assign(url.href);
+  } catch (error) {
+    window.alert(error.message);
+  } finally {
+    projectImport.disabled = iterationImport.disabled = !canDeleteHistory;
+    importFile.value = '';
+  }
+});
 
 async function deleteFromHistory(button, url, label) {
   if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
@@ -143,6 +209,18 @@ sortedProjects.forEach((item) => {
   const length = item.versions.length;
   total.textContent = `${length} iteration${length === 1 ? '' : 's'}`;
   card.append(button, reference, total);
+  const actions = document.createElement('div');
+  actions.className = 'project-actions';
+  const exportButton = document.createElement('button');
+  exportButton.type = 'button';
+  exportButton.className = 'history-action';
+  exportButton.textContent = 'Export';
+  exportButton.setAttribute('aria-label', `Export ${item.title}`);
+  exportButton.addEventListener('click', event => {
+    event.stopPropagation();
+    downloadArchive(exportButton, item);
+  });
+  actions.append(exportButton);
   if (canDeleteHistory) {
     const remove = document.createElement('button');
     remove.type = 'button';
@@ -153,8 +231,9 @@ sortedProjects.forEach((item) => {
       event.stopPropagation();
       deleteFromHistory(remove, `/api/projects/${encodeURIComponent(item.id)}`, `“${item.title}” and its ${total.textContent}`);
     });
-    card.append(remove);
+    actions.append(remove);
   }
+  card.append(actions);
   card.addEventListener('click', () => {
     showProject(item);
     setProjectsOpen(false);
@@ -192,6 +271,7 @@ function showProject(nextProject, versionId = null) {
   });
   prompt.disabled = versions.length === 0;
   resetButton.disabled = versions.length === 0;
+  iterationExport.disabled = versions.length === 0;
   versionDelete.hidden = !canDeleteHistory || versions.length === 0;
   if (versions.length) {
     const requested = versions.findIndex(version => version.id === versionId);
@@ -547,7 +627,7 @@ const initialProject = projects.find(({ id }) => id === requested.get('project')
 if (initialProject) showProject(initialProject, requested.get('version'));
 else {
   projectsTitle.textContent = 'No projects';
-  projectsToggle.disabled = toggle.disabled = true;
+  toggle.disabled = true;
   updateURL();
 }
 syncPosterMode();

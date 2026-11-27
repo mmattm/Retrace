@@ -23,6 +23,7 @@ let patternWidth = 0;
 let animationTime = 0;
 
 async function setup() {
+  await document.fonts.load('400 100px "Unica77LL"');
   background = new paper.Path.Rectangle({
     rectangle: paper.view.bounds,
     fillColor: BACKGROUND,
@@ -171,7 +172,7 @@ function rebuildTypography() {
   if (!guidePath || !renderedText.trim()) return;
 
   const characters = Array.from(renderedText.normalize('NFC'));
-  measureContext.font = `700 ${renderedSize}px Arial`;
+  measureContext.font = `400 ${renderedSize}px Unica77LL`;
   const widths = characters.map(character => measureContext.measureText(character).width);
   const spacing = renderedSize * 0.05;
   // One pattern includes the complete text plus a small gap before the next copy.
@@ -190,9 +191,9 @@ function rebuildTypography() {
           fillColor: null,
           strokeColor: OUTLINE,
           strokeWidth: 1.2,
-          fontFamily: 'Arial',
+          fontFamily: 'Unica77LL',
           fontSize: renderedSize,
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           justification: 'center',
           strokeJoin: 'round',
         }),

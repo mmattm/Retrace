@@ -1,0 +1,9 @@
+Project: typographic-erosion
+Starting version: 2026-11-27T10-18-25-385Z
+Sketch: timeline/versions/typographic-erosion/2026-11-27T10-18-25-385Z/sketch.js
+
+Deux dossiers ont été ajoutés dans fonts : Axidraw et ECAL_Typefaces.
+
+Créer une nouvelle itération avec un menu déroulant permettant de sélectionner une police et de changer celle du texte dans le canvas.
+
+Les polices AxiDraw sont des polices à trait simple (single-line fonts) : utiliser leurs tracés simples, sans doubler les traits comme pour les contours des autres polices.

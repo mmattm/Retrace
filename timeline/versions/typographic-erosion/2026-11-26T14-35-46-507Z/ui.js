@@ -7,11 +7,12 @@ export function createUI(config) {
 
   const hint = document.createElement('p');
   hint.className = 'sketch-helper';
-  hint.textContent = 'Hover with Pencil to preview the first letter. Pressure varies text size, and Pencil roll or sideways tilt turns the letters as you draw.';
+  hint.textContent = 'Drag to add text curves; previous lines stay on the canvas. Spread releases elastic fragments that bend and drift with inertia; Pencil pressure and roll control size and tilt.';
   container.append(hint);
 
   const pane = new Pane({ container });
   pane.addBinding(config, 'text', { label: 'Text' });
   pane.addBinding(config, 'textSize', { label: 'Text size', min: 12, max: 160, step: 1 });
+  pane.addBinding(config, 'spread', { label: 'Spread', min: 0, max: 100, step: 1 });
   return pane;
 }

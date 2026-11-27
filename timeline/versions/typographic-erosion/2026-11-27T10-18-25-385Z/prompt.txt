@@ -1,0 +1,7 @@
+Project: typographic-erosion
+Starting version: 2026-11-27T10-16-11-427Z
+Sketch: timeline/versions/typographic-erosion/2026-11-27T10-16-11-427Z/sketch.js
+
+Modifier la dernière itération pour augmenter la taille maximale de la police et régler Wiggle à 0 par défaut.
+
+Rendre le Spread beaucoup plus aléatoire dans le dessin, avec une dispersion plus progressive.

@@ -31,6 +31,10 @@ In **Versions**, click the version summary to copy its reference. Paste it into 
 
 > Make the lines thicker and fade twice as slowly.
 
+**Export and import JSON**
+
+In **Projects**, use a project's **Export JSON** button to download its full history, or **Import JSON** to restore a project or a single iteration. In **Versions**, **Export JSON** downloads the selected iteration and **Import JSON** adds an iteration to the current project. Archives include source code, controls, prompts, engine metadata and any existing Agent configuration; they do not capture the live drawing or shared fonts and libraries. Import is available on localhost with the development server running. Existing versions are preserved: identical versions are skipped, missing versions are merged, and conflicting content is imported into a separate project.
+
 **Sidebar controls**
 
 Use **Add Controls** in your prompt and name the settings you want in the right sidebar.
@@ -60,3 +64,30 @@ ollama pull qwen3.5:9b
 ```
 
 If you use Ollama without the app, start it with `ollama serve` in a separate terminal.
+
+## Print on AxiDraw
+
+Open a **Paper.js** sketch, then **Export → AxiDraw**. Set the drawing width and height in millimeters, position the crop and click **Print on AxiDraw**. The paper preview shows thin black paths on white, using the same frozen vector paths sent to the plotter. Each source stroke stays a single centerline: its visual thickness is never expanded into two outlines. Filled-only shapes (including backgrounds) and raster images are skipped. Plain text is converted to vector paths by the Python bridge using the project’s bundled Unica77LL Regular font or locally installed Arial, Times New Roman or Courier New fonts. All **Type on Line** iterations use Unica77LL Regular, matching the interface. Keep the bridge running for text previews, even without an AxiDraw attached. Styled or multiline text must be converted to paths first. Existing closed paths and overlapping geometry retain their original trajectories; this does not reconstruct centerlines from outlined shapes. The AxiDraw tab is only available for Paper.js vector sketches and stays hidden for p5.js and Three.js projects.
+
+On the computer connected to the AxiDraw by USB, install the [official AxiDraw Python API](https://axidraw.com/doc/py_api/#installation) in a virtual environment. Its documented supported Python versions are 3.8–3.12; this example uses Python 3.12.
+
+```sh
+python3.12 -m venv .venv-axidraw
+source .venv-axidraw/bin/activate
+python -m pip install -r timeline/requirements-axidraw.txt
+python timeline/axidraw_server.py
+```
+
+Keep that terminal open and run `npm run dev` in another terminal. Vite forwards print requests to the bridge, including when opening its Network URL from an iPad. The bridge listens only on `127.0.0.1:8765`. For a hosted Retrace site, run the bridge on the browser’s computer with `--origin https://your-retrace-site.example`; the browser may ask for local network access.
+
+For later sessions, activate the environment again with `source .venv-axidraw/bin/activate`, then run `python timeline/axidraw_server.py`.
+
+Place the paper in landscape and position the carriage at the top-left origin before starting. The orientation selector controls the composition and its preview. The bridge enables AxiDraw auto-rotation: portrait compositions rotate 90° for landscape plotting, preserving their scale and proportions. Landscape compositions keep their orientation. Secure the paper and set the dimensions within your machine’s drawing area. Dimensions describe the drawing area starting at that origin, without an added margin. Use the machine’s physical pause button to stop a plot; closing the modal does not stop it. A paused plot cannot be resumed from Retrace; reposition at the origin before starting again.
+
+The bridge starts with model `1` (V2/V3/A4), speed `25`, pen-up height `60` and pen-down height `40`. Adjust them when launching if needed:
+
+```sh
+python timeline/axidraw_server.py --model 2 --speed 25 --pen-up 60 --pen-down 40
+```
+
+`--model` uses the API model numbers (for example, `2` for V3/A3). The modal checks the bridge and USB connection every 1.5 seconds. It shows **AxiDraw connected** only when the computer detects an AxiDraw USB controller, and **AxiDraw disconnected** when none is found. Detection only enumerates USB ports; it does not move the pen or open the serial connection. It does not guarantee the machine’s power, pen setup or availability in another application. Printing stays disabled while disconnected. Status also reports plotting, completion and API errors. Requests are never automatically retried, and a busy bridge rejects additional plots.

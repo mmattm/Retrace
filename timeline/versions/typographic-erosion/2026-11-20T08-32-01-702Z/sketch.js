@@ -23,6 +23,7 @@ let patternWidth = 0;
 let animationTime = 0;
 
 async function setup() {
+  await document.fonts.load('400 100px "Unica77LL"');
   background = new paper.Path.Rectangle({
     rectangle: paper.view.bounds,
     fillColor: BACKGROUND,
@@ -190,7 +191,7 @@ function rebuildPattern() {
   patternWidth = 0;
   if (!renderedText.trim()) return;
 
-  measureContext.font = `700 ${renderedSize}px Arial`;
+  measureContext.font = `400 ${renderedSize}px Unica77LL`;
   measureContext.textAlign = 'center';
   const tracking = renderedSize * 0.04;
   glyphs = Array.from(renderedText.normalize('NFC'), content => {
@@ -238,8 +239,8 @@ function placeLetters(length) {
     const item = letters[visibleCount] ?? new paper.PointText({
       fillColor: null,
       strokeColor: OUTLINE,
-      fontFamily: 'Arial',
-      fontWeight: 'bold',
+      fontFamily: 'Unica77LL',
+      fontWeight: 'normal',
       justification: 'center',
       strokeJoin: 'round',
     });

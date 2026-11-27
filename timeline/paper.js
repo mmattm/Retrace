@@ -51,6 +51,15 @@ export async function createPaperRuntime(stage) {
       render(); // Vector paths redraw sharply, including while paused.
     },
     redraw: () => render(),
+    // Type on Line keeps the successfully loaded face in its sketch globals.
+    getPlotFont() {
+      const font = typeof outlineFont === 'undefined' ? null : outlineFont;
+      return {
+        file: typeof currentFont === 'string' ? currentFont : '',
+        name: font?.getEnglishName?.('fontFamily') || '',
+        author: font?.getEnglishName?.('designer') || '',
+      };
+    },
     snapshotSVG: () => scope.project.exportSVG({ bounds: 'view' }),
     exportSVG({ width, height, crop, snapshot }) {
       // Freeze vectors with the preview, so resizing the window cannot change the export.
